@@ -284,12 +284,31 @@
             color: #666;
         }
 
+        .sets-grid input.previous-data {
+            background: #f5f5f5;
+            color: #999;
+            border: 1px solid #e0e0e0;
+        }
+
+        .sets-grid input.previous-data:focus {
+            background: white;
+            color: #333;
+            border-color: #007AFF;
+        }
+
+        .sets-grid input.current-data {
+            background: white;
+            color: #333;
+            border: 2px solid #007AFF;
+        }
+
         .sets-grid input {
             padding: 6px 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 0.9rem;
             text-align: center;
+            transition: all 0.3s ease;
         }
 
         .previous-note {
@@ -1046,23 +1065,67 @@
         function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
             let html = '';
             
-            exerciseData.sets.forEach((set, setIndex) => {
+            // Determine how many sets to show (current data or previous data, whichever is more)
+            const currentSets = exerciseData.sets.length;
+            const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
+            const maxSets = Math.max(currentSets, previousSets, 2); // Minimum 2 sets
+            
+            // Ensure we have enough sets in current data
+            while (exerciseData.sets.length < maxSets) {
+                exerciseData.sets.push({ weight: '', reps: '' });
+            }
+            
+            for (let setIndex = 0; setIndex < maxSets; setIndex++) {
+                const currentSet = exerciseData.sets[setIndex] || { weight: '', reps: '' };
                 const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
+                
+                // Use previous week's data as placeholder if current is empty
+                const weightValue = currentSet.weight !== '' ? currentSet.weight : 
+                                  (previousSet && currentWeek > 1 ? previousSet.weight : '');
+                const repsValue = currentSet.reps !== '' ? currentSet.reps : 
+                                (previousSet && currentWeek > 1 ? previousSet.reps : '');
+                
+                // Determine input styling based on data source
+                const hasCurrentData = currentSet.weight !== '' || currentSet.reps !== '';
+                const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1;
+                
+                let weightClass = '';
+                let repsClass = '';
+                let weightPlaceholder = 'Weight';
+                let repsPlaceholder = 'Reps';
+                
+                if (hasCurrentData) {
+                    weightClass = 'current-data';
+                    repsClass = 'current-data';
+                } else if (hasPreviousData && !hasCurrentData) {
+                    weightClass = 'previous-data';
+                    repsClass = 'previous-data';
+                    weightPlaceholder = `Last: ${previousSet.weight || '?'}`;
+                    repsPlaceholder = `Last: ${previousSet.reps || '?'}`;
+                }
                 
                 html += `
                     <div class="sets-grid">
                         <label>S${setIndex + 1}</label>
-                        <input type="number" placeholder="Weight" value="${set.weight}" 
-                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'weight', this.value)">
-                        <input type="number" placeholder="Reps" value="${set.reps}"
-                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'reps', this.value)">
+                        <input type="number" 
+                               placeholder="${weightPlaceholder}" 
+                               value="${weightValue}" 
+                               class="${weightClass}"
+                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'weight', this.value)"
+                               onfocus="this.classList.remove('previous-data'); this.classList.add('current-data');">
+                        <input type="number" 
+                               placeholder="${repsPlaceholder}" 
+                               value="${repsValue}"
+                               class="${repsClass}"
+                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'reps', this.value)"
+                               onfocus="this.classList.remove('previous-data'); this.classList.add('current-data');">
                         ${setIndex > 1 ? `<button class="remove-set" onclick="removeSet(${exerciseIndex}, ${setIndex})">×</button>` : '<span></span>'}
-                        ${previousSet && (previousSet.weight || previousSet.reps) ? 
-                            `<div class="previous-note">Last: ${previousSet.weight || '?'}lbs × ${previousSet.reps || '?'}</div>` : ''
+                        ${hasPreviousData && !hasCurrentData ? 
+                            `<div class="previous-note">Previous week data - click to edit</div>` : ''
                         }
                     </div>
                 `;
-            });
+            }
             
             return html;
         }
@@ -1078,6 +1141,12 @@
                 exerciseData.sets[setIndex] = { weight: '', reps: '' };
             }
             exerciseData.sets[setIndex][field] = value;
+            
+            // Update the input styling to show it's now current data
+            const input = event.target;
+            input.classList.remove('previous-data');
+            input.classList.add('current-data');
+            
             saveUserData();
         }
 
