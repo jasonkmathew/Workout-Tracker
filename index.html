@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Workout Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .google-btn {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 15px auto;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .google-btn:hover {
+            background: #f8f9fa;
+            border-color: #007AFF;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider::before {
+            margin-right: 15px;
+        }
+
+        .divider::after {
+            margin-left: 15px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .auth-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-btn:hover {
+            background: #0056CC;
+        }
+
+        .auth-switch {
+            margin-top: 15px;
+            color: #666;
+        }
+
+        .auth-switch button {
+            background: none;
+            border: none;
+            color: #007AFF;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .error {
+            color: #FF3B30;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #FF3B30;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .user-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .week-selector {
+            margin-bottom: 15px;
+        }
+
+        .week-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .week-selector select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .workout-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .workout-selector select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .workout-content {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .exercise {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 0;
+        }
+
+        .exercise:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .exercise-info {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .exercise-select {
+            margin-bottom: 10px;
+        }
+
+        .exercise-select select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .sets-grid {
+            display: grid;
+            grid-template-columns: 40px 1fr 1fr 60px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .sets-grid label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .sets-grid input {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .previous-note {
+            grid-column: 1 / -1;
+            font-size: 0.75rem;
+            color: #999;
+            font-style: italic;
+            margin-top: -4px;
+        }
+
+        .add-set {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .remove-set {
+            background: #FF3B30;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .exercise-tips {
+            background: #f8f9fa;
+            border-left: 3px solid #007AFF;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .exercise-tips h4 {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .exercise-tips p {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .tempo-key {
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+        }
+
+        .tempo-key h4 {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #1976D2;
+        }
+
+        .tempo-key p {
+            font-size: 0.8rem;
+            color: #333;
+            margin: 2px 0;
+        }
+
+        .comments {
+            margin-top: 10px;
+        }
+
+        .comments label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .comments textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .rest-day {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .rest-day h2 {
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .save-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #34C759;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            transform: translateY(-50px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .save-indicator.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .sets-grid {
+                grid-template-columns: 35px 1fr 1fr 50px;
+                gap: 6px;
+            }
+            
+            .sets-grid input {
+                padding: 4px 6px;
+                font-size: 0.85rem;
+            }
+
+            .logout-btn {
+                position: static;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC91rY8_FSfQfXkoFuhT0I_H_fan6VLNe0",
+            authDomain: "split-workout-tracker.firebaseapp.com",
+            projectId: "split-workout-tracker",
+            storageBucket: "split-workout-tracker.firebasestorage.app",
+            messagingSenderId: "429001339736",
+            appId: "1:429001339736:web:e753739f5c827145c36b2d",
+            measurementId: "G-1F6C2R60P7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Global variables
+        window.auth = auth;
+        window.db = db;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.getDoc = getDoc;
+        window.onSnapshot = onSnapshot;
+        window.collection = collection;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+    </script>
+
+    <div id="authContainer" class="auth-container">
+        <h2 id="authTitle">Welcome to Split Tracker</h2>
+        
+        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+        </button>
+        
+        <div class="divider">or</div>
+        
+        <form id="authForm" class="auth-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
+            <div id="authError" class="error"></div>
+        </form>
+        <div class="auth-switch">
+            <span id="authSwitchText">Don't have an account?</span>
+            <button type="button" id="authSwitchBtn">Sign Up</button>
+        </div>
+    </div>
+
+    <div id="loadingScreen" class="loading" style="display: none;">
+        <h2>Loading your workouts...</h2>
+    </div>
+
+    <div id="appContainer" class="container" style="display: none;">
+        <div class="header">
+            <h1>💪 Split Workout Tracker</h1>
+            <p>2 on • 1 off • 2 on • 1-2 off</p>
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="controls">
+            <div class="week-selector">
+                <label for="weekSelect">Week</label>
+                <select id="weekSelect" onchange="selectWeek(this.value)">
+                    <option value="1">Week 1</option>
+                    <option value="2">Week 2</option>
+                    <option value="3">Week 3</option>
+                    <option value="4">Week 4</option>
+                    <option value="5">Week 5</option>
+                    <option value="6">Week 6</option>
+                    <option value="7">Week 7</option>
+                    <option value="8">Week 8</option>
+                    <option value="9">Week 9</option>
+                    <option value="10">Week 10</option>
+                    <option value="11">Week 11</option>
+                    <option value="12">Week 12</option>
+                </select>
+            </div>
+
+            <div class="workout-selector">
+                <label for="workoutSelect">Workout</label>
+                <select id="workoutSelect" onchange="showWorkout(this.value)">
+                    <option value="upperA">Upper A</option>
+                    <option value="lowerA">Lower A</option>
+                    <option value="rest1">Rest Day</option>
+                    <option value="upperB">Upper B</option>
+                    <option value="lowerB">Lower B</option>
+                    <option value="rest2">Rest Day</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="workoutContent" class="workout-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+    </div>
+
+    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
+
+    <script>
+        let currentUser = null;
+        let currentWeek = 1;
+        let currentWorkout = 'upperA';
+        let workoutData = {};
+        let isSignUp = false;
+
+        // Exercise execution tips and tempo explanations
+        const exerciseTips = {
+            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
+            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
+            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
+            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
+            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
+            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
+            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
+            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
+            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
+            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
+            "Adductors": "Set machine as wide as possible to force a stretch.",
+            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
+            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
+            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
+            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
+            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
+            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
+            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
+            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
+            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
+            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
+            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
+            "Lunges": "Control descent, brief pause, drive through front heel to return.",
+            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
+        };
+
+        const tempoKey = `
+            <div class="tempo-key">
+                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
+                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
+                <p><strong>1</strong> = Pause at stretch/bottom position</p>
+                <p><strong>1</strong> = Concentric (lifting) seconds</p>
+                <p><strong>1</strong> = Pause at contraction/top</p>
+            </div>
+        `;
+
+        // Workout definitions
+        const workouts = {
+            upperA: {
+                name: "Upper A",
+                exercises: [
+                    {
+                        name: "Incline Press",
+                        sets: "1-2 sets",
+                        reps: "6-10 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Incline DB Press", "Incline Smith Machine", "Incline Barbell", "Incline Press Machine"]
+                    },
+                    {
+                        name: "Chest Fly",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Chest Fly Machine", "Seated Cable Fly", "Flat DB Flys"]
+                    },
+                    {
+                        name: "Lat Pulldown",
+                        sets: "2-3 sets",
+                        reps: "6-10 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Wide Grip", "Neutral Grip", "Pulldown Machine"]
+                    },
+                    {
+                        name: "Mid Back Row",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Seated Machine Row", "Cable Row"]
+                    },
+                    {
+                        name: "Lateral Raise",
+                        sets: "2-4 sets",
+                        reps: "10-15 reps",
+                        tempo: "4:1:1:1",
+                        options: ["DB Lateral Raise", "Lateral Raise Machine", "Cable Lateral Raise"]
+                    },
+                    {
+                        name: "Tricep Pushdown",
+                        sets: "2-4 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:2:1:1",
+                        options: ["Rope", "V-Bar", "Straight Bar"]
+                    },
+                    {
+                        name: "DB Curl",
+                        sets: "2-4 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Alternating DB Curl", "Hammer Curl", "Seated", "Standing"]
+                    }
+                ]
+            },
+            lowerA: {
+                name: "Lower A",
+                exercises: [
+                    {
+                        name: "Leg Curl",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "4:1:1:1",
+                        options: ["Seated Leg Curl"]
+                    },
+                    {
+                        name: "Leg Extension",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Standard", "Leaning Back"]
+                    },
+                    {
+                        name: "Squat",
+                        sets: "1-2 sets",
+                        reps: "6-10 reps",
+                        tempo: "3:1:1:1",
+                        options: ["High Bar Back Squat", "Front Squat", "Smith Machine", "Hack Squat"]
+                    },
+                    {
+                        name: "Adductors",
+                        sets: "2-3 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:2:1:1",
+                        options: ["Adductor Machine"]
+                    },
+                    {
+                        name: "Calf Raise",
+                        sets: "3-5 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:2:1:2",
+                        options: ["Standing Machine", "Donkey", "Leg Press"]
+                    },
+                    {
+                        name: "Abs",
+                        sets: "3-5 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Crunch Machine", "Cable Crunches"]
+                    }
+                ]
+            },
+            upperB: {
+                name: "Upper B",
+                exercises: [
+                    {
+                        name: "Pullover",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Cable Pullover", "Machine Pulldown"]
+                    },
+                    {
+                        name: "Upper Back Row",
+                        sets: "2-3 sets",
+                        reps: "6-10 reps",
+                        tempo: "3:1:1:2",
+                        options: ["T-Bar Row", "Machine Row", "DB Row"]
+                    },
+                    {
+                        name: "Rear Delt Fly",
+                        sets: "2-4 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:2:1:2",
+                        options: ["Machine", "Cable", "DB Fly"]
+                    },
+                    {
+                        name: "Shoulder Press",
+                        sets: "1-2 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["DB Press", "Smith Machine", "Machine Press"]
+                    },
+                    {
+                        name: "Chest Press (RPS)",
+                        sets: "Rest Pause",
+                        reps: "10-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Machine Press", "Smith Bench"]
+                    },
+                    {
+                        name: "Lower Chest",
+                        sets: "2-3 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Decline Cable", "Cable Fly"]
+                    },
+                    {
+                        name: "Preacher Curl",
+                        sets: "2-4 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:2:1:2",
+                        options: ["DB", "Cable", "Machine", "Barbell"]
+                    },
+                    {
+                        name: "Tricep Extension",
+                        sets: "2-4 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:2:1:1",
+                        options: ["Skull Crushers", "JM Press"]
+                    }
+                ]
+            },
+            lowerB: {
+                name: "Lower B",
+                exercises: [
+                    {
+                        name: "Lying Leg Curl",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "4:2:1:2",
+                        options: ["Lying Leg Curl"]
+                    },
+                    {
+                        name: "Leg Extension (RPS)",
+                        sets: "Rest Pause",
+                        reps: "12-15 reps",
+                        tempo: "3:1:1:2",
+                        options: ["Standard", "Leaning Back"]
+                    },
+                    {
+                        name: "Romanian Deadlift",
+                        sets: "2 sets",
+                        reps: "8-12 reps",
+                        tempo: "4:1:1:1",
+                        options: ["Dumbbells", "Barbell", "Belt Squat"]
+                    },
+                    {
+                        name: "Lunges",
+                        sets: "2 sets",
+                        reps: "8-12 reps/leg",
+                        tempo: "3:1:1:1",
+                        options: ["Walking DB", "Split Squat", "Bulgarian", "Leg Press"]
+                    },
+                    {
+                        name: "Calf Raise",
+                        sets: "3-5 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:2:1:2",
+                        options: ["Standing Machine", "Donkey", "Leg Press"]
+                    },
+                    {
+                        name: "Leg Raises",
+                        sets: "3-5 sets",
+                        reps: "AMRAP",
+                        tempo: "3:1:1:1",
+                        options: ["Hanging", "Machine", "Lying"]
+                    }
+                ]
+            }
+        };
+
+        // Authentication functions
+        function initAuth() {
+            const authForm = document.getElementById('authForm');
+            const authSwitchBtn = document.getElementById('authSwitchBtn');
+
+            authForm.addEventListener('submit', handleAuth);
+            authSwitchBtn.addEventListener('click', toggleAuthMode);
+
+            // Listen for auth state changes
+            window.onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showApp();
+                    loadUserData();
+                } else {
+                    currentUser = null;
+                    showAuth();
+                }
+            });
+        }
+
+        async function handleGoogleAuth() {
+            const errorDiv = document.getElementById('authError');
+            
+            try {
+                const provider = new window.GoogleAuthProvider();
+                await window.signInWithPopup(window.auth, provider);
+            } catch (error) {
+                console.error('Google auth error:', error);
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            const authTitle = document.getElementById('authTitle');
+            const authBtn = document.getElementById('authBtn');
+            const authSwitchText = document.getElementById('authSwitchText');
+            const authSwitchBtn = document.getElementById('authSwitchBtn');
+
+            if (isSignUp) {
+                authTitle.textContent = 'Create Account';
+                authBtn.textContent = 'Sign Up';
+                authSwitchText.textContent = 'Already have an account?';
+                authSwitchBtn.textContent = 'Sign In';
+            } else {
+                authTitle.textContent = 'Welcome Back';
+                authBtn.textContent = 'Sign In';
+                authSwitchText.textContent = "Don't have an account?";
+                authSwitchBtn.textContent = 'Sign Up';
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('authError');
+
+            try {
+                if (isSignUp) {
+                    await window.createUserWithEmailAndPassword(window.auth, email, password);
+                } else {
+                    await window.signInWithEmailAndPassword(window.auth, email, password);
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await window.signOut(window.auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
+        }
+
+        function showLoading() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // Data functions
+        function initializeWorkoutData() {
+            workoutData = {};
+            for (let week = 1; week <= 12; week++) {
+                workoutData[week] = {};
+                for (let workoutKey in workouts) {
+                    workoutData[week][workoutKey] = {};
+                    workouts[workoutKey].exercises.forEach((exercise, index) => {
+                        workoutData[week][workoutKey][index] = {
+                            selectedExercise: exercise.options[0],
+                            sets: [{ weight: '', reps: '' }, { weight: '', reps: '' }],
+                            comments: ''
+                        };
+                    });
+                }
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            
+            showLoading();
+            
+            try {
+                const userDocRef = window.doc(window.db, 'users', currentUser.uid);
+                const userDoc = await window.getDoc(userDocRef);
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    if (userData.workouts) {
+                        workoutData = userData.workouts;
+                    } else {
+                        initializeWorkoutData();
+                    }
+                } else {
+                    initializeWorkoutData();
+                    await saveUserData();
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                initializeWorkoutData();
+            }
+            
+            showApp();
+            showWorkout(currentWorkout);
+        }
+
+        async function saveUserData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDocRef = window.doc(window.db, 'users', currentUser.uid);
+                await window.setDoc(userDocRef, {
+                    workouts: workoutData,
+                    lastUpdated: new Date()
+                }, { merge: true });
+                
+                showSaveIndicator();
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            }
+        }
+
+        // App functions
+        function selectWeek(week) {
+            currentWeek = parseInt(week);
+            showWorkout(currentWorkout);
+        }
+
+        function showWorkout(workoutKey) {
+            currentWorkout = workoutKey;
+            document.getElementById('workoutSelect').value = workoutKey;
+
+            const content = document.getElementById('workoutContent');
+            
+            if (workoutKey === 'rest1' || workoutKey === 'rest2') {
+                content.innerHTML = `
+                    <div class="rest-day">
+                        <h2>🛌 Rest Day</h2>
+                        <p>Recovery time - prepare for your next workout!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const workout = workouts[workoutKey];
+            let html = tempoKey;
+            
+            workout.exercises.forEach((exercise, index) => {
+                const exerciseData = workoutData[currentWeek][workoutKey][index];
+                const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][workoutKey][index] : null;
+                const tips = exerciseTips[exercise.name] || "Focus on proper form and controlled movement.";
+                
+                html += `
+                    <div class="exercise">
+                        <div class="exercise-name">${exercise.name}</div>
+                        <div class="exercise-info">${exercise.sets} • ${exercise.reps} • ${exercise.tempo}</div>
+                        
+                        <div class="exercise-select">
+                            <select onchange="updateExerciseSelection(${index}, this.value)">
+                                ${exercise.options.map(option => `
+                                    <option value="${option}" ${exerciseData.selectedExercise === option ? 'selected' : ''}>
+                                        ${option}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div id="sets-${index}">
+                            ${generateSetsHTML(index, exerciseData, previousWeekData)}
+                        </div>
+                        
+                        <button class="add-set" onclick="addSet(${index})">+ Add Set</button>
+                        
+                        <div class="exercise-tips">
+                            <h4>Execution Tips:</h4>
+                            <p>${tips}</p>
+                        </div>
+                        
+                        <div class="comments">
+                            <label>Notes</label>
+                            <textarea 
+                                placeholder="Form notes, improvements, etc..."
+                                onchange="updateComments(${index}, this.value)"
+                            >${exerciseData.comments}</textarea>
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
+            let html = '';
+            
+            exerciseData.sets.forEach((set, setIndex) => {
+                const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
+                
+                html += `
+                    <div class="sets-grid">
+                        <label>S${setIndex + 1}</label>
+                        <input type="number" placeholder="Weight" value="${set.weight}" 
+                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'weight', this.value)">
+                        <input type="number" placeholder="Reps" value="${set.reps}"
+                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'reps', this.value)">
+                        ${setIndex > 1 ? `<button class="remove-set" onclick="removeSet(${exerciseIndex}, ${setIndex})">×</button>` : '<span></span>'}
+                        ${previousSet && (previousSet.weight || previousSet.reps) ? 
+                            `<div class="previous-note">Last: ${previousSet.weight || '?'}lbs × ${previousSet.reps || '?'}</div>` : ''
+                        }
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+
+        function updateExerciseSelection(exerciseIndex, value) {
+            workoutData[currentWeek][currentWorkout][exerciseIndex].selectedExercise = value;
+            saveUserData();
+        }
+
+        function updateSetData(exerciseIndex, setIndex, field, value) {
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
+            if (!exerciseData.sets[setIndex]) {
+                exerciseData.sets[setIndex] = { weight: '', reps: '' };
+            }
+            exerciseData.sets[setIndex][field] = value;
+            saveUserData();
+        }
+
+        function updateComments(exerciseIndex, value) {
+            workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
+            saveUserData();
+        }
+
+        function addSet(exerciseIndex) {
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
+            exerciseData.sets.push({ weight: '', reps: '' });
+            
+            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
+            document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
+            saveUserData();
+        }
+
+        function removeSet(exerciseIndex, setIndex) {
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
+            exerciseData.sets.splice(setIndex, 1);
+            
+            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
+            document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
+            saveUserData();
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Initialize the app when page loads
+        window.addEventListener('load', () => {
+            initAuth();
+        });
+    </script>
+</body>
+</html>
