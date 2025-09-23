@@ -913,6 +913,32 @@
             color: var(--muted);
         }
 
+        .no-results h3 {
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 1.2rem;
+        }
+
+        .no-results ol {
+            max-width: 500px;
+            margin: 16px auto;
+        }
+
+        .no-results ol li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .no-results code {
+            background: var(--card);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
         .exercise-card {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -1234,7 +1260,7 @@
                 <!-- Search and Filters -->
                 <div class="exercise-search-section">
                     <div class="search-box">
-                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." onchange="searchExercises(this.value)">
+                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." oninput="searchExercises(this.value)">
                         <button class="search-btn" onclick="searchExercises(document.getElementById('exerciseSearch').value)">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -1317,6 +1343,79 @@
         let currentMuscleFilter = '';
         let currentEquipmentFilter = '';
         let isSearching = false;
+        let searchDebounceTimer = null;
+
+        // RapidAPI Configuration
+        const API_BASE = 'https://exercisedb-api1.p.rapidapi.com';
+
+        // Environment key reading with fallback
+        function getRapidApiKey() {
+            return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_RAPIDAPI_KEY)
+                || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAPIDAPI_KEY)
+                || (typeof localStorage !== 'undefined' && localStorage.getItem('RAPIDAPI_KEY'))
+                || '';
+        }
+
+        // RapidAPI headers helper
+        function rapidHeaders() {
+            const key = getRapidApiKey();
+            if (!key) {
+                console.warn('RapidAPI key not found. Add RAPIDAPI_KEY to localStorage for development.');
+            }
+            return {
+                'x-rapidapi-host': 'exercisedb-api1.p.rapidapi.com',
+                'x-rapidapi-key': key
+            };
+        }
+
+        // Debounce helper function
+        function debounce(fn, delay = 350) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        // RapidAPI Exercise Functions
+        async function searchExercisesByName(query) {
+            if (!query?.trim()) return [];
+            const url = `${API_BASE}/exercises/name/${encodeURIComponent(query.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+            return await response.json();
+        }
+
+        async function filterByTarget(target) {
+            if (!target?.trim()) return [];
+            const url = `${API_BASE}/exercises/target/${encodeURIComponent(target.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Target filter failed: ${response.status}`);
+            return await response.json();
+        }
+
+        async function filterByEquipment(equipment) {
+            if (!equipment?.trim()) return [];
+            const url = `${API_BASE}/exercises/equipment/${encodeURIComponent(equipment.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Equipment filter failed: ${response.status}`);
+            return await response.json();
+        }
+
+        // Exercise normalization for plan integration
+        function normalizeExercise(apiExercise) {
+            return {
+                exerciseId: apiExercise.id,
+                name: apiExercise.name,
+                target: apiExercise.target || '',
+                equipment: apiExercise.equipment || '',
+                defaultSets: [{ reps: 10, weight: '' }],
+                meta: {
+                    bodyPart: apiExercise.bodyPart || '',
+                    gifUrl: apiExercise.gifUrl || ''
+                }
+            };
+        }
 
         // Exercise execution tips and tempo explanations
         const exerciseTips = {
@@ -1927,6 +2026,22 @@
         function openExerciseModal() {
             document.getElementById('exerciseModal').style.display = 'flex';
             clearSearch();
+
+            // Check for API key and show setup message if needed
+            if (!getRapidApiKey()) {
+                document.getElementById('exerciseList').innerHTML = `
+                    <div class="no-results">
+                        <h3>API Setup Required</h3>
+                        <p>To use the Exercise Catalog, you need a RapidAPI key:</p>
+                        <ol style="text-align: left; margin: 16px 0; color: var(--muted);">
+                            <li>Get a free key from <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" style="color: var(--accent);">RapidAPI ExerciseDB</a></li>
+                            <li>Open browser console and run:<br><code style="background: var(--card); padding: 4px 8px; border-radius: 4px; font-family: monospace;">localStorage.setItem('RAPIDAPI_KEY', 'your-key-here')</code></li>
+                            <li>Refresh the page</li>
+                        </ol>
+                        <p>For production, use environment variables.</p>
+                    </div>
+                `;
+            }
         }
 
         function closeExerciseModal() {
@@ -1963,10 +2078,23 @@
             document.getElementById('exerciseList').style.display = 'grid';
         }
 
-        function showError() {
+        function showError(errorMessage = '') {
             document.getElementById('exerciseLoading').style.display = 'none';
-            document.getElementById('exerciseError').style.display = 'block';
             document.getElementById('exerciseList').style.display = 'none';
+
+            const errorElement = document.getElementById('exerciseError');
+            const errorText = errorElement.querySelector('p');
+
+            // Check if it's an API key issue
+            if (errorMessage.includes('401') || errorMessage.includes('403') || !getRapidApiKey()) {
+                errorText.textContent = 'API key missing or invalid. Add your RapidAPI key to localStorage as "RAPIDAPI_KEY" for development.';
+            } else if (errorMessage.includes('429')) {
+                errorText.textContent = 'Rate limit exceeded. Please wait a moment and try again.';
+            } else {
+                errorText.textContent = errorMessage || 'Failed to load exercises. Please try again.';
+            }
+
+            errorElement.style.display = 'block';
         }
 
         function showNoResults() {
@@ -1978,84 +2106,65 @@
             `;
         }
 
-        async function searchExercises(query) {
-            if (!query || query.trim().length < 2) {
-                showNoResults();
-                return;
-            }
-
-            currentSearchQuery = query.trim();
-            isSearching = true;
-            showLoading();
+        // Main search function with debouncing
+        const debouncedSearch = debounce(async () => {
+            if (isSearching) return;
 
             try {
-                const url = `https://exercisedb-api-rose-seven.vercel.app/exercises?name=${encodeURIComponent(currentSearchQuery)}`;
-                const response = await fetch(url);
+                isSearching = true;
+                showLoading();
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                let exercises = [];
+
+                if (currentSearchQuery && currentSearchQuery.trim().length >= 2) {
+                    exercises = await searchExercisesByName(currentSearchQuery);
+                } else if (currentMuscleFilter) {
+                    exercises = await filterByTarget(currentMuscleFilter);
+                } else if (currentEquipmentFilter) {
+                    exercises = await filterByEquipment(currentEquipmentFilter);
+                } else {
+                    showNoResults();
+                    return;
                 }
 
-                const exercises = await response.json();
-                exerciseSearchResults = exercises || [];
+                exerciseSearchResults = Array.isArray(exercises) ? exercises : [];
                 displayExercises(exerciseSearchResults);
                 hideLoading();
+
             } catch (error) {
                 console.error('Search error:', error);
-                showError();
+                showError(error.message);
             } finally {
                 isSearching = false;
             }
+        }, 350);
+
+        function searchExercises(query) {
+            currentSearchQuery = query?.trim() || '';
+            // Clear filters when searching by name
+            if (currentSearchQuery) {
+                currentMuscleFilter = '';
+                currentEquipmentFilter = '';
+                document.getElementById('muscleFilter').value = '';
+                document.getElementById('equipmentFilter').value = '';
+            }
+            debouncedSearch();
         }
 
-        async function filterExercises() {
+        function filterExercises() {
             const muscleSelect = document.getElementById('muscleFilter');
             const equipmentSelect = document.getElementById('equipmentFilter');
 
             currentMuscleFilter = muscleSelect.value;
             currentEquipmentFilter = equipmentSelect.value;
 
-            // If no filters and no search query, show no results
-            if (!currentMuscleFilter && !currentEquipmentFilter && !currentSearchQuery) {
-                showNoResults();
-                return;
+            // Clear search query when filtering
+            if (currentMuscleFilter || currentEquipmentFilter) {
+                currentSearchQuery = '';
+                document.getElementById('exerciseSearch').value = '';
             }
 
-            isSearching = true;
-            showLoading();
-
-            try {
-                let url = 'https://exercisedb-api-rose-seven.vercel.app/exercises?';
-                const params = [];
-
-                if (currentSearchQuery) {
-                    params.push(`name=${encodeURIComponent(currentSearchQuery)}`);
-                }
-                if (currentMuscleFilter) {
-                    params.push(`target=${encodeURIComponent(currentMuscleFilter)}`);
-                }
-                if (currentEquipmentFilter) {
-                    params.push(`equipment=${encodeURIComponent(currentEquipmentFilter)}`);
-                }
-
-                url += params.join('&');
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const exercises = await response.json();
-                exerciseSearchResults = exercises || [];
-                displayExercises(exerciseSearchResults);
-                hideLoading();
-            } catch (error) {
-                console.error('Filter error:', error);
-                showError();
-            } finally {
-                isSearching = false;
-            }
+            debouncedSearch();
         }
 
         function displayExercises(exercises) {
@@ -2075,13 +2184,20 @@
         }
 
         function createExerciseCard(exercise) {
-            const { id, name, target, equipment, gifUrl } = exercise;
+            const { id, name, target, equipment, gifUrl, bodyPart } = exercise;
+
+            // Escape quotes for safe HTML
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const safeTarget = (target || '').replace(/'/g, "\\'");
+            const safeEquipment = (equipment || '').replace(/'/g, "\\'");
+            const safeGifUrl = (gifUrl || '').replace(/'/g, "\\'");
+            const safeBodyPart = (bodyPart || '').replace(/'/g, "\\'");
 
             return `
                 <div class="exercise-card">
                     <div class="exercise-card-image">
                         ${gifUrl ?
-                            `<img src="${gifUrl}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\\"placeholder\\">No image available</div>'">` :
+                            `<img src="${gifUrl}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\\"placeholder\\">No image available</div>'" loading="lazy">` :
                             '<div class="placeholder">No image available</div>'
                         }
                     </div>
@@ -2089,27 +2205,41 @@
                     <div class="exercise-card-meta">
                         ${target ? `<span>🎯 ${target}</span>` : ''}
                         ${equipment ? `<span>⚡ ${equipment}</span>` : ''}
+                        ${bodyPart ? `<span>💪 ${bodyPart}</span>` : ''}
                     </div>
-                    <button class="add-to-plan-btn" onclick="addExerciseToPlan('${id}', '${name.replace(/'/g, "\\'")}', '${target || ''}', '${equipment || ''}')">
+                    <button class="add-to-plan-btn" onclick="addExerciseToPlan('${id}', '${safeName}', '${safeTarget}', '${safeEquipment}', '${safeGifUrl}', '${safeBodyPart}')">
                         Add to Plan
                     </button>
                 </div>
             `;
         }
 
-        function addExerciseToPlan(exerciseId, exerciseName, target, equipment) {
-            // Show a success message
+        function addExerciseToPlan(exerciseId, exerciseName, target, equipment, gifUrl = '', bodyPart = '') {
+            // Create normalized exercise object
+            const apiExercise = {
+                id: exerciseId,
+                name: exerciseName,
+                target: target,
+                equipment: equipment,
+                gifUrl: gifUrl,
+                bodyPart: bodyPart
+            };
+
+            const normalizedExercise = normalizeExercise(apiExercise);
+
+            // Show success indicator
             showSaveIndicator();
 
-            // For now, just show an alert. In a full implementation, you would:
-            // 1. Add the exercise to the current workout plan
-            // 2. Update the workout data structure
+            // For now, just show details. In full implementation:
+            // 1. Add normalizedExercise to current workout plan
+            // 2. Update workoutData structure
             // 3. Save to Firebase
-            // 4. Refresh the workout display
+            // 4. Refresh workout display
 
-            alert(`"${exerciseName}" added to your plan! (Demo - not actually added yet)`);
+            console.log('Normalized exercise for plan:', normalizedExercise);
+            alert(`"${exerciseName}" ready for plan integration!\n\nTarget: ${target}\nEquipment: ${equipment}\n\n(Demo - integration with workout plans coming next)`);
 
-            // Optionally close the modal after adding
+            // Optional: close modal after adding
             // closeExerciseModal();
         }
 
