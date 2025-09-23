@@ -5,25 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Split Workout Tracker</title>
     <style>
-        /* =================================
-           THEME - CSS Variables
-           ================================= */
-        :root {
-            --bg: #0b0b0d;
-            --card: #15161a;
-            --text: #f5f5f7;
-            --muted: #a1a1aa;
-            --accent: #7c3aed;
-            --accent-hover: #6d28d9;
-            --border: rgba(255, 255, 255, 0.1);
-            --border-focus: rgba(255, 255, 255, 0.2);
-            --shadow: rgba(0, 0, 0, 0.3);
-            --shadow-lg: rgba(0, 0, 0, 0.4);
-            --error: #ef4444;
-            --success: #22c55e;
-            --warning: #f59e0b;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -32,79 +13,62 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: var(--bg);
+            background: #f5f5f5;
             min-height: 100vh;
-            color: var(--text);
-            line-height: 1.5;
+            color: #333;
+            line-height: 1.4;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            padding: 16px;
+            padding: 10px;
         }
 
         .auth-container {
-            max-width: 420px;
+            max-width: 400px;
             margin: 50px auto;
-            padding: 32px;
-            background: var(--card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            box-shadow: 0 8px 32px var(--shadow-lg);
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             text-align: center;
         }
 
         .auth-container h2 {
-            margin-bottom: 24px;
-            color: var(--text);
-            font-size: 1.5rem;
-            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
         }
 
-        /* =================================
-           BUTTONS - Professional System
-           ================================= */
         .google-btn {
-            background: var(--card);
-            color: var(--text);
-            border: 1px solid var(--border);
-            padding: 14px 16px;
-            border-radius: 12px;
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin: 0 auto 20px auto;
+            gap: 10px;
+            margin: 0 auto 15px auto;
             width: 100%;
-            min-height: 48px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .google-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--border-focus);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px var(--shadow);
-        }
-
-        .google-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px var(--shadow);
+            background: #f8f9fa;
+            border-color: #007AFF;
         }
 
         .divider {
             display: flex;
             align-items: center;
-            margin: 24px 0;
-            color: var(--muted);
+            margin: 15px 0;
+            color: #666;
             font-size: 0.9rem;
-            font-weight: 500;
         }
 
         .divider::before,
@@ -112,261 +76,169 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--border);
+            background: #ddd;
         }
 
         .divider::before {
-            margin-right: 16px;
+            margin-right: 15px;
         }
 
         .divider::after {
-            margin-left: 16px;
+            margin-left: 15px;
         }
 
         .auth-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 15px;
         }
 
         .auth-form input {
-            padding: 14px 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 1rem;
-            background: var(--card);
-            color: var(--text);
-            min-height: 48px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .auth-form input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .auth-form input::placeholder {
-            color: var(--muted);
-        }
-
-        .auth-form input:invalid {
-            box-shadow: none;
-            border-color: var(--border);
-        }
-
-        .auth-form input:required {
-            box-shadow: none;
+            border-color: #007AFF;
         }
 
         .auth-btn {
-            background: var(--accent);
+            background: #007AFF;
             color: white;
             border: none;
-            padding: 14px 16px;
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
-            min-height: 48px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            font-weight: 600;
         }
 
         .auth-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-        }
-
-        .auth-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+            background: #0056CC;
         }
 
         .auth-switch {
-            margin-top: 20px;
-            color: var(--muted);
-            font-size: 0.9rem;
+            margin-top: 15px;
+            color: #666;
         }
 
         .auth-switch button {
             background: none;
             border: none;
-            color: var(--accent);
+            color: #007AFF;
             cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .auth-switch button:hover {
-            background: rgba(124, 58, 237, 0.1);
             text-decoration: underline;
         }
 
         .loading {
             text-align: center;
-            padding: 64px 32px;
-            color: var(--muted);
-        }
-
-        .loading h2 {
-            color: var(--text);
-            margin-bottom: 8px;
+            padding: 50px;
+            color: #666;
         }
 
         .error {
-            color: var(--error);
+            color: #FF3B30;
             font-size: 0.9rem;
-            margin-top: 12px;
-            padding: 8px 12px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 8px;
-            display: none;
-        }
-
-        .error.show {
-            display: block;
+            margin-top: 10px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 24px;
-            padding: 24px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px var(--shadow);
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
         }
 
         .header h1 {
-            font-size: 1.75rem;
-            color: var(--text);
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 5px;
         }
 
         .header p {
-            font-size: 0.9rem;
-            color: var(--muted);
-            font-weight: 500;
+            font-size: 0.85rem;
+            color: #666;
         }
 
         .logout-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--error);
+            top: 15px;
+            right: 15px;
+            background: #FF3B30;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-size: 0.8rem;
-            font-weight: 600;
             cursor: pointer;
-            min-height: 36px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-        }
-
-        .logout-btn:active {
-            transform: translateY(0);
         }
 
         .user-info {
             font-size: 0.8rem;
-            color: var(--muted);
-            margin-top: 8px;
-            font-weight: 500;
+            color: #666;
+            margin-top: 5px;
         }
 
         .controls {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px var(--shadow);
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .week-selector {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .week-selector label {
             display: block;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 0.9rem;
-            color: var(--text);
         }
 
         .week-selector select {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
             font-size: 1rem;
-            background: var(--bg);
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .week-selector select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
         }
 
         .workout-selector label {
             display: block;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-size: 0.9rem;
-            color: var(--text);
         }
 
         .workout-selector select {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
             font-size: 1rem;
-            background: var(--bg);
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .workout-selector select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
         }
 
         .workout-content {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 20px var(--shadow);
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .exercise {
-            border-bottom: 1px solid var(--border);
-            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 0;
         }
 
         .exercise:last-child {
@@ -374,259 +246,186 @@
         }
 
         .exercise-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
         }
 
         .exercise-info {
-            font-size: 0.85rem;
-            color: var(--muted);
-            margin-bottom: 12px;
-            font-weight: 500;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
         }
 
         .exercise-select {
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .exercise-select select {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             font-size: 0.9rem;
-            background: var(--bg);
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .exercise-select select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }
 
         .sets-grid {
             display: grid;
-            grid-template-columns: 40px 1fr 1fr 64px;
-            gap: 10px;
+            grid-template-columns: 40px 1fr 1fr 60px;
+            gap: 8px;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .sets-grid label {
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--muted);
+            color: #666;
         }
 
         .sets-grid input.previous-data {
-            background: rgba(255, 255, 255, 0.02);
-            color: var(--muted);
-            border: 1px solid var(--border);
+            background: #f5f5f5;
+            color: #999;
+            border: 1px solid #e0e0e0;
         }
 
         .sets-grid input.previous-data:focus {
-            background: var(--bg);
-            color: var(--text);
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
+            color: #333;
+            border-color: #007AFF;
         }
 
         .sets-grid input.current-data {
-            background: var(--bg);
-            color: var(--text);
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            background: white;
+            color: #333;
+            border: 2px solid #007AFF;
         }
 
         .sets-grid input {
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 0.9rem;
             text-align: center;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 40px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sets-grid input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+            transition: all 0.3s ease;
         }
 
         .previous-note {
             grid-column: 1 / -1;
             font-size: 0.75rem;
-            color: var(--muted);
+            color: #999;
             font-style: italic;
             margin-top: -4px;
         }
 
         .add-set {
-            background: var(--accent);
+            background: #007AFF;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
             cursor: pointer;
-            margin-bottom: 16px;
-            min-height: 40px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .add-set:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-        }
-
-        .add-set:active {
-            transform: translateY(0);
+            margin-bottom: 10px;
         }
 
         .remove-set {
-            background: var(--error);
+            background: #FF3B30;
             color: white;
             border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
             cursor: pointer;
-            min-height: 32px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .remove-set:hover {
-            background: #dc2626;
-            transform: scale(1.05);
         }
 
         .exercise-tips {
-            background: rgba(124, 58, 237, 0.08);
-            border-left: 3px solid var(--accent);
-            padding: 16px;
-            margin: 16px 0;
-            border-radius: 12px;
-            border: 1px solid rgba(124, 58, 237, 0.15);
+            background: #f8f9fa;
+            border-left: 3px solid #007AFF;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
         }
 
         .exercise-tips h4 {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            color: var(--text);
-            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #333;
         }
 
         .exercise-tips p {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.4;
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.3;
             margin: 0;
         }
 
         .tempo-key {
-            background: rgba(34, 197, 94, 0.08);
-            padding: 16px;
-            margin: 16px 0;
-            border-radius: 12px;
-            border-left: 3px solid var(--success);
-            border: 1px solid rgba(34, 197, 94, 0.15);
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
         }
 
         .tempo-key h4 {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            color: var(--success);
-            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #1976D2;
         }
 
         .tempo-key p {
-            font-size: 0.85rem;
-            color: var(--text);
-            margin: 4px 0;
-            line-height: 1.4;
+            font-size: 0.8rem;
+            color: #333;
+            margin: 2px 0;
         }
 
         .comments {
-            margin-top: 16px;
+            margin-top: 10px;
         }
 
         .comments label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text);
+            margin-bottom: 5px;
+            color: #666;
         }
 
         .comments textarea {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            background: var(--bg);
-            color: var(--text);
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
             resize: vertical;
-            min-height: 80px;
-            line-height: 1.4;
-            font-family: inherit;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .comments textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .comments textarea::placeholder {
-            color: var(--muted);
+            min-height: 60px;
         }
 
         .rest-day {
             text-align: center;
-            padding: 48px 24px;
-            color: var(--muted);
+            padding: 40px 20px;
+            color: #666;
         }
 
         .rest-day h2 {
-            margin-bottom: 12px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .rest-day p {
-            font-size: 1rem;
-            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
         }
 
         .save-indicator {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
+            top: 10px;
+            right: 10px;
+            background: #34C759;
             color: white;
-            padding: 12px 20px;
-            border-radius: 24px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transform: translateY(-60px);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            transform: translateY(-50px);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
-            z-index: 1000;
+            transition: all 0.3s ease;
         }
 
         .save-indicator.show {
@@ -634,497 +433,24 @@
             opacity: 1;
         }
 
-        /* =================================
-           EXERCISE CATALOG - Modal & Components
-           ================================= */
-        .exercise-catalog-btn-container {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .exercise-catalog-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 44px;
-        }
-
-        .exercise-catalog-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
-        }
-
-        .exercise-catalog-btn:active {
-            transform: translateY(0);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-backdrop {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            position: relative;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px var(--shadow-lg);
-            width: 100%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-header h2 {
-            color: var(--text);
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text);
-        }
-
-        .modal-body {
-            padding: 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .exercise-search-section {
-            margin-bottom: 24px;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 50px 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 1rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .search-box input::placeholder {
-            color: var(--muted);
-        }
-
-        .search-btn {
-            position: absolute;
-            right: 4px;
-            top: 4px;
-            bottom: 4px;
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .search-btn:hover {
-            color: var(--accent);
-            background: rgba(124, 58, 237, 0.1);
-        }
-
-        .filter-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 16px;
-            align-items: end;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-group label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 6px;
-        }
-
-        .filter-group select {
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: var(--bg);
-            color: var(--text);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .filter-group select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .clear-filters-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            white-space: nowrap;
-        }
-
-        .clear-filters-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--border-focus);
-            color: var(--text);
-        }
-
-        .exercise-results {
-            min-height: 300px;
-        }
-
-        .exercise-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 48px 24px;
-            color: var(--muted);
-        }
-
-        .loading-spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .exercise-error {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--error);
-        }
-
-        .exercise-error p {
-            margin-bottom: 16px;
-        }
-
-        .retry-btn {
-            background: var(--error);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .retry-btn:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-        }
-
-        .exercise-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .no-results {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--muted);
-        }
-
-        .no-results h3 {
-            color: var(--text);
-            margin-bottom: 16px;
-            font-size: 1.2rem;
-        }
-
-        .no-results ol {
-            max-width: 500px;
-            margin: 16px auto;
-            text-align: left;
-        }
-
-        .no-results ol li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .no-results code {
-            background: var(--card);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            color: var(--accent);
-            border: 1px solid var(--border);
-        }
-
-        .exercise-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .exercise-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px var(--shadow);
-            border-color: var(--border-focus);
-        }
-
-        .exercise-card-image {
-            width: 100%;
-            height: 160px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .exercise-card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .exercise-card-image .placeholder {
-            color: var(--muted);
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
-        .exercise-card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 6px;
-            line-height: 1.3;
-        }
-
-        .exercise-card-meta {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            font-size: 0.8rem;
-            color: var(--muted);
-        }
-
-        .exercise-card-meta span {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 8px;
-            border-radius: 6px;
-            text-transform: capitalize;
-        }
-
-        .add-to-plan-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .add-to-plan-btn:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-
-        .add-to-plan-btn:active {
-            transform: translateY(0);
-        }
-
         @media (max-width: 480px) {
             .container {
-                padding: 12px;
+                padding: 5px;
             }
-
-            .auth-container {
-                margin: 30px auto;
-                padding: 24px;
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
+            
             .sets-grid {
-                grid-template-columns: 36px 1fr 1fr 52px;
-                gap: 8px;
+                grid-template-columns: 35px 1fr 1fr 50px;
+                gap: 6px;
             }
-
+            
             .sets-grid input {
-                padding: 6px 8px;
+                padding: 4px 6px;
                 font-size: 0.85rem;
-                min-height: 36px;
             }
 
             .logout-btn {
                 position: static;
-                margin-top: 12px;
-                width: 100%;
-                justify-self: center;
-            }
-
-            .controls {
-                padding: 16px;
-            }
-
-            .workout-content {
-                padding: 16px;
-            }
-
-            .exercise {
-                padding: 16px 0;
-            }
-
-            .save-indicator {
-                top: 16px;
-                right: 16px;
-                padding: 10px 16px;
-            }
-
-            .modal {
-                padding: 10px;
-            }
-
-            .modal-content {
-                max-height: 95vh;
-            }
-
-            .modal-header {
-                padding: 16px;
-            }
-
-            .modal-header h2 {
-                font-size: 1.3rem;
-            }
-
-            .modal-body {
-                padding: 16px;
-            }
-
-            .filter-row {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .clear-filters-btn {
-                justify-self: start;
-            }
-
-            .exercise-list {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-        }
-
-        /* =================================
-           FOCUS IMPROVEMENTS
-           ================================= */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+                margin-top: 10px;
             }
         }
     </style>
@@ -1166,131 +492,171 @@
         window.signOut = signOut;
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
+    </script>
 
-        // App state
+    <div id="authContainer" class="auth-container">
+        <h2 id="authTitle">Welcome to Split Tracker</h2>
+        
+        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+        </button>
+        
+        <div class="divider">or</div>
+        
+        <form id="authForm" class="auth-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
+            <div id="authError" class="error"></div>
+        </form>
+        <div class="auth-switch">
+            <span id="authSwitchText">Don't have an account?</span>
+            <button type="button" id="authSwitchBtn">Sign Up</button>
+        </div>
+    </div>
+
+    <div id="loadingScreen" class="loading" style="display: none;">
+        <h2>Loading your workouts...</h2>
+    </div>
+
+    <div id="appContainer" class="container" style="display: none;">
+        <div class="header">
+            <h1>💪 Split Workout Tracker</h1>
+            <p>2 on • 1 off • 2 on • 1-2 off</p>
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="controls">
+            <div class="week-selector">
+                <label for="weekSelect">Week</label>
+                <select id="weekSelect" onchange="selectWeek(this.value)">
+                    <option value="1">Week 1</option>
+                    <option value="2">Week 2</option>
+                    <option value="3">Week 3</option>
+                    <option value="4">Week 4</option>
+                    <option value="5">Week 5</option>
+                    <option value="6">Week 6</option>
+                    <option value="7">Week 7</option>
+                    <option value="8">Week 8</option>
+                    <option value="9">Week 9</option>
+                    <option value="10">Week 10</option>
+                    <option value="11">Week 11</option>
+                    <option value="12">Week 12</option>
+                </select>
+            </div>
+
+            <div class="workout-selector">
+                <label for="workoutSelect">Workout</label>
+                <select id="workoutSelect" onchange="showWorkout(this.value)">
+                    <option value="upperA">Upper A</option>
+                    <option value="lowerA">Lower A</option>
+                    <option value="rest1">Rest Day</option>
+                    <option value="upperB">Upper B</option>
+                    <option value="lowerB">Lower B</option>
+                    <option value="rest2">Rest Day</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="workoutContent" class="workout-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+    </div>
+
+    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
+
+    <script>
         let currentUser = null;
         let currentWeek = 1;
         let currentWorkout = 'upperA';
         let workoutData = {};
         let isSignUp = false;
 
-        // Exercise Catalog Variables
-        let exerciseSearchResults = [];
-        let currentSearchQuery = '';
-        let currentMuscleFilter = '';
-        let currentEquipmentFilter = '';
-        let isSearching = false;
+        // Exercise execution tips and tempo explanations
+        const exerciseTips = {
+            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
+            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
+            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
+            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
+            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
+            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
+            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
+            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
+            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
+            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
+            "Adductors": "Set machine as wide as possible to force a stretch.",
+            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
+            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
+            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
+            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
+            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
+            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
+            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
+            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
+            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
+            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
+            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
+            "Lunges": "Control descent, brief pause, drive through front heel to return.",
+            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
+        };
 
-        // RapidAPI Configuration
-        const API_BASE = 'https://exercisedb-api1.p.rapidapi.com';
+        const tempoKey = `
+            <div class="tempo-key">
+                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
+                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
+                <p><strong>1</strong> = Pause at stretch/bottom position</p>
+                <p><strong>1</strong> = Concentric (lifting) seconds</p>
+                <p><strong>1</strong> = Pause at contraction/top</p>
+            </div>
+        `;
 
-        // Environment key reading with fallback
-        function getRapidApiKey() {
-            return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_RAPIDAPI_KEY)
-                || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAPIDAPI_KEY)
-                || (typeof localStorage !== 'undefined' && localStorage.getItem('RAPIDAPI_KEY'))
-                || '';
-        }
-
-        // RapidAPI headers helper
-        function rapidHeaders() {
-            const key = getRapidApiKey();
-            if (!key) {
-                console.warn('RapidAPI key not found. Add RAPIDAPI_KEY to localStorage for development.');
-            }
-            return {
-                'x-rapidapi-host': 'exercisedb-api1.p.rapidapi.com',
-                'x-rapidapi-key': key
-            };
-        }
-
-        // Debounce helper function
-        function debounce(fn, delay = 350) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => fn(...args), delay);
-            };
-        }
-
-        // RapidAPI Exercise Functions
-        async function searchExercisesByName(query) {
-            if (!query?.trim()) return [];
-            const url = `${API_BASE}/exercises/name/${encodeURIComponent(query.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Search failed: ${response.status}`);
-            return await response.json();
-        }
-
-        async function filterByTarget(target) {
-            if (!target?.trim()) return [];
-            const url = `${API_BASE}/exercises/target/${encodeURIComponent(target.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Target filter failed: ${response.status}`);
-            return await response.json();
-        }
-
-        async function filterByEquipment(equipment) {
-            if (!equipment?.trim()) return [];
-            const url = `${API_BASE}/exercises/equipment/${encodeURIComponent(equipment.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Equipment filter failed: ${response.status}`);
-            return await response.json();
-        }
-
-        // Exercise normalization for plan integration
-        function normalizeExercise(apiExercise) {
-            return {
-                exerciseId: apiExercise.id,
-                name: apiExercise.name,
-                target: apiExercise.target || '',
-                equipment: apiExercise.equipment || '',
-                defaultSets: [{ reps: 10, weight: '' }],
-                meta: {
-                    bodyPart: apiExercise.bodyPart || '',
-                    gifUrl: apiExercise.gifUrl || ''
-                }
-            };
-        }
-
-        // Workout data structure
+        // Workout definitions
         const workouts = {
             upperA: {
                 name: "Upper A",
                 exercises: [
                     {
                         name: "Incline Press",
-                        sets: "2-3 sets",
+                        sets: "1-2 sets",
                         reps: "6-10 reps",
                         tempo: "3:1:1:1",
-                        options: ["Incline DB Press", "Incline Barbell", "Smith Machine"]
+                        options: ["Incline DB Press", "Incline Smith Machine", "Incline Barbell", "Incline Press Machine"]
                     },
                     {
                         name: "Chest Fly",
-                        sets: "2-3 sets", 
-                        reps: "10-15 reps",
-                        tempo: "3:2:1:2",
-                        options: ["Cable Fly", "Pec Deck", "DB Fly"]
+                        sets: "2-3 sets",
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Chest Fly Machine", "Seated Cable Fly", "Flat DB Flys"]
                     },
                     {
                         name: "Lat Pulldown",
                         sets: "2-3 sets",
-                        reps: "8-12 reps", 
+                        reps: "6-10 reps",
                         tempo: "3:1:1:1",
-                        options: ["Wide Grip", "Close Grip", "Underhand"]
+                        options: ["Wide Grip", "Neutral Grip", "Pulldown Machine"]
                     },
                     {
                         name: "Mid Back Row",
                         sets: "2-3 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:1:1:2", 
-                        options: ["Seated Row", "Machine Row", "T-Bar Row"]
+                        reps: "8-12 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Seated Machine Row", "Cable Row"]
                     },
                     {
                         name: "Lateral Raise",
                         sets: "2-4 sets",
                         reps: "10-15 reps",
-                        tempo: "3:1:1:1",
+                        tempo: "4:1:1:1",
                         options: ["DB Lateral Raise", "Lateral Raise Machine", "Cable Lateral Raise"]
                     },
                     {
@@ -1466,79 +832,36 @@
             }
         };
 
-        // Exercise execution tips and tempo explanations
-        const exerciseTips = {
-            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
-            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
-            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
-            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
-            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
-            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
-            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
-            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
-            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
-            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
-            "Adductors": "Set machine as wide as possible to force a stretch.",
-            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
-            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
-            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
-            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
-            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
-            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
-            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
-            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
-            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
-            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
-            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
-            "Lunges": "Control descent, brief pause, drive through front heel to return.",
-            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
-        };
-
-        const tempoKey = `
-            <div class="tempo-key">
-                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
-                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
-                <p><strong>1</strong> = Pause at stretch/bottom position</p>
-                <p><strong>1</strong> = Concentric (lifting) seconds</p>
-                <p><strong>1</strong> = Pause at contraction/top</p>
-            </div>
-        `;
-
         // Authentication functions
         function initAuth() {
             const authForm = document.getElementById('authForm');
             const authSwitchBtn = document.getElementById('authSwitchBtn');
 
-            if (authForm && authSwitchBtn) {
-                authForm.addEventListener('submit', handleAuth);
-                authSwitchBtn.addEventListener('click', toggleAuthMode);
-            }
+            authForm.addEventListener('submit', handleAuth);
+            authSwitchBtn.addEventListener('click', toggleAuthMode);
 
             // Listen for auth state changes
-            if (window.onAuthStateChanged && window.auth) {
-                window.onAuthStateChanged(window.auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        showApp();
-                        loadUserData();
-                    } else {
-                        currentUser = null;
-                        showAuth();
-                    }
-                });
-            }
+            window.onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showApp();
+                    loadUserData();
+                } else {
+                    currentUser = null;
+                    showAuth();
+                }
+            });
         }
 
         async function handleGoogleAuth() {
             const errorDiv = document.getElementById('authError');
+            
             try {
                 const provider = new window.GoogleAuthProvider();
                 await window.signInWithPopup(window.auth, provider);
             } catch (error) {
+                console.error('Google auth error:', error);
                 errorDiv.textContent = error.message;
-                errorDiv.classList.add('show');
             }
         }
 
@@ -1568,10 +891,6 @@
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('authError');
 
-            // Clear any previous error
-            errorDiv.classList.remove('show');
-            errorDiv.textContent = '';
-
             try {
                 if (isSignUp) {
                     await window.createUserWithEmailAndPassword(window.auth, email, password);
@@ -1580,7 +899,6 @@
                 }
             } catch (error) {
                 errorDiv.textContent = error.message;
-                errorDiv.classList.add('show');
             }
         }
 
@@ -1605,7 +923,7 @@
             document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
         }
 
-        function showLoadingScreen() {
+        function showLoading() {
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('loadingScreen').style.display = 'block';
             document.getElementById('appContainer').style.display = 'none';
@@ -1632,7 +950,7 @@
         async function loadUserData() {
             if (!currentUser) return;
             
-            showLoadingScreen();
+            showLoading();
             
             try {
                 const userDocRef = window.doc(window.db, 'users', currentUser.uid);
@@ -1747,10 +1065,12 @@
         function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
             let html = '';
             
+            // Determine how many sets to show (current data or previous data, whichever is more)
             const currentSets = exerciseData.sets.length;
             const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
-            const maxSets = Math.max(currentSets, previousSets, 2);
+            const maxSets = Math.max(currentSets, previousSets, 2); // Minimum 2 sets
             
+            // Ensure we have enough sets in current data
             while (exerciseData.sets.length < maxSets) {
                 exerciseData.sets.push({ weight: '', reps: '' });
             }
@@ -1759,11 +1079,13 @@
                 const currentSet = exerciseData.sets[setIndex] || { weight: '', reps: '' };
                 const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
                 
+                // Use previous week's data as placeholder if current is empty
                 const weightValue = currentSet.weight !== '' ? currentSet.weight : 
                                   (previousSet && currentWeek > 1 ? previousSet.weight : '');
                 const repsValue = currentSet.reps !== '' ? currentSet.reps : 
                                 (previousSet && currentWeek > 1 ? previousSet.reps : '');
                 
+                // Determine input styling based on data source
                 const hasCurrentData = currentSet.weight !== '' || currentSet.reps !== '';
                 const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1;
                 
@@ -1819,6 +1141,12 @@
                 exerciseData.sets[setIndex] = { weight: '', reps: '' };
             }
             exerciseData.sets[setIndex][field] = value;
+            
+            // Update the input styling to show it's now current data
+            const input = event.target;
+            input.classList.remove('previous-data');
+            input.classList.add('current-data');
+            
             saveUserData();
         }
 
@@ -1853,424 +1181,10 @@
             }, 2000);
         }
 
-        // ========================================
-        // EXERCISE CATALOG FUNCTIONALITY
-        // ========================================
-
-        function openExerciseModal() {
-            document.getElementById('exerciseModal').style.display = 'flex';
-            clearSearch();
-
-            if (!getRapidApiKey()) {
-                document.getElementById('exerciseList').innerHTML = `
-                    <div class="no-results">
-                        <h3>API Setup Required</h3>
-                        <p>To use the Exercise Catalog, you need a RapidAPI key:</p>
-                        <ol style="text-align: left; margin: 16px 0; color: var(--muted);">
-                            <li>Get a free key from <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" style="color: var(--accent);">RapidAPI ExerciseDB</a></li>
-                            <li>Open browser console and run:<br><code>localStorage.setItem('RAPIDAPI_KEY', 'your-key-here')</code></li>
-                            <li>Refresh the page</li>
-                        </ol>
-                        <p>For production, use environment variables.</p>
-                    </div>
-                `;
-            }
-        }
-
-        function closeExerciseModal() {
-            document.getElementById('exerciseModal').style.display = 'none';
-            clearSearch();
-        }
-
-        function clearSearch() {
-            document.getElementById('exerciseSearch').value = '';
-            document.getElementById('muscleFilter').value = '';
-            document.getElementById('equipmentFilter').value = '';
-            currentSearchQuery = '';
-            currentMuscleFilter = '';
-            currentEquipmentFilter = '';
-            showNoResults();
-        }
-
-        function clearFilters() {
-            document.getElementById('muscleFilter').value = '';
-            document.getElementById('equipmentFilter').value = '';
-            currentMuscleFilter = '';
-            currentEquipmentFilter = '';
-            filterExercises();
-        }
-
-        function showExerciseLoading() {
-            document.getElementById('exerciseLoading').style.display = 'flex';
-            document.getElementById('exerciseError').style.display = 'none';
-            document.getElementById('exerciseList').style.display = 'none';
-        }
-
-        function hideExerciseLoading() {
-            document.getElementById('exerciseLoading').style.display = 'none';
-            document.getElementById('exerciseList').style.display = 'grid';
-        }
-
-        function showExerciseError(errorMessage = '') {
-            document.getElementById('exerciseLoading').style.display = 'none';
-            document.getElementById('exerciseList').style.display = 'none';
-
-            const errorElement = document.getElementById('exerciseError');
-            const errorText = errorElement.querySelector('p');
-
-            if (errorMessage.includes('401') || errorMessage.includes('403') || !getRapidApiKey()) {
-                errorText.textContent = 'API key missing or invalid. Add your RapidAPI key to localStorage as "RAPIDAPI_KEY" for development.';
-            } else if (errorMessage.includes('429')) {
-                errorText.textContent = 'Rate limit exceeded. Please wait a moment and try again.';
-            } else {
-                errorText.textContent = errorMessage || 'Failed to load exercises. Please try again.';
-            }
-
-            errorElement.style.display = 'block';
-        }
-
-        function showNoResults() {
-            hideExerciseLoading();
-            document.getElementById('exerciseList').innerHTML = `
-                <div class="no-results">
-                    <p>Search or filter exercises to get started</p>
-                </div>
-            `;
-        }
-
-        // Main search function with debouncing
-        const debouncedSearch = debounce(async () => {
-            if (isSearching) return;
-
-            try {
-                isSearching = true;
-                showExerciseLoading();
-
-                let exercises = [];
-
-                if (currentSearchQuery && currentSearchQuery.trim().length >= 2) {
-                    exercises = await searchExercisesByName(currentSearchQuery);
-                } else if (currentMuscleFilter) {
-                    exercises = await filterByTarget(currentMuscleFilter);
-                } else if (currentEquipmentFilter) {
-                    exercises = await filterByEquipment(currentEquipmentFilter);
-                } else {
-                    showNoResults();
-                    return;
-                }
-
-                exerciseSearchResults = Array.isArray(exercises) ? exercises : [];
-                displayExercises(exerciseSearchResults);
-                hideExerciseLoading();
-
-            } catch (error) {
-                console.error('Search error:', error);
-                showExerciseError(error.message);
-            } finally {
-                isSearching = false;
-            }
-        }, 350);
-
-        function searchExercises(query) {
-            currentSearchQuery = query?.trim() || '';
-            if (currentSearchQuery) {
-                currentMuscleFilter = '';
-                currentEquipmentFilter = '';
-                document.getElementById('muscleFilter').value = '';
-                document.getElementById('equipmentFilter').value = '';
-            }
-            debouncedSearch();
-        }
-
-        function filterExercises() {
-            const muscleSelect = document.getElementById('muscleFilter');
-            const equipmentSelect = document.getElementById('equipmentFilter');
-
-            currentMuscleFilter = muscleSelect.value;
-            currentEquipmentFilter = equipmentSelect.value;
-
-            if (currentMuscleFilter || currentEquipmentFilter) {
-                currentSearchQuery = '';
-                document.getElementById('exerciseSearch').value = '';
-            }
-
-            debouncedSearch();
-        }
-
-        function displayExercises(exercises) {
-            const container = document.getElementById('exerciseList');
-
-            if (!exercises || exercises.length === 0) {
-                container.innerHTML = `
-                    <div class="no-results">
-                        <p>No exercises found matching your criteria</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const exerciseCards = exercises.map(exercise => createExerciseCard(exercise)).join('');
-            container.innerHTML = exerciseCards;
-        }
-
-        function createExerciseCard(exercise) {
-            const { id, name, target, equipment, gifUrl, bodyPart } = exercise;
-
-            const safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
-            const safeTarget = (target || '').replace(/'/g, "\\'");
-            const safeEquipment = (equipment || '').replace(/'/g, "\\'");
-            const safeGifUrl = (gifUrl || '').replace(/'/g, "\\'");
-            const safeBodyPart = (bodyPart || '').replace(/'/g, "\\'");
-
-            return `
-                <div class="exercise-card">
-                    <div class="exercise-card-image">
-                        ${gifUrl ?
-                            `<img src="${gifUrl}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\\"placeholder\\">No image available</div>'" loading="lazy">` :
-                            '<div class="placeholder">No image available</div>'
-                        }
-                    </div>
-                    <div class="exercise-card-title">${name}</div>
-                    <div class="exercise-card-meta">
-                        ${target ? `<span>🎯 ${target}</span>` : ''}
-                        ${equipment ? `<span>⚡ ${equipment}</span>` : ''}
-                        ${bodyPart ? `<span>💪 ${bodyPart}</span>` : ''}
-                    </div>
-                    <button class="add-to-plan-btn" onclick="addExerciseToPlan('${id}', '${safeName}', '${safeTarget}', '${safeEquipment}', '${safeGifUrl}', '${safeBodyPart}')">
-                        Add to Plan
-                    </button>
-                </div>
-            `;
-        }
-
-        function addExerciseToPlan(exerciseId, exerciseName, target, equipment, gifUrl = '', bodyPart = '') {
-            const apiExercise = {
-                id: exerciseId,
-                name: exerciseName,
-                target: target,
-                equipment: equipment,
-                gifUrl: gifUrl,
-                bodyPart: bodyPart
-            };
-
-            const normalizedExercise = normalizeExercise(apiExercise);
-            showSaveIndicator();
-
-            console.log('Normalized exercise for plan:', normalizedExercise);
-            alert(`"${exerciseName}" ready for plan integration!\n\nTarget: ${target}\nEquipment: ${equipment}\n\n(Demo - integration with workout plans coming next)`);
-        }
-
-        function retrySearch() {
-            if (currentSearchQuery) {
-                searchExercises(currentSearchQuery);
-            } else if (currentMuscleFilter || currentEquipmentFilter) {
-                filterExercises();
-            }
-        }
-
-        // Make functions global for onclick handlers
-        window.handleGoogleAuth = handleGoogleAuth;
-        window.handleLogout = handleLogout;
-        window.openExerciseModal = openExerciseModal;
-        window.closeExerciseModal = closeExerciseModal;
-        window.searchExercises = searchExercises;
-        window.filterExercises = filterExercises;
-        window.clearFilters = clearFilters;
-        window.addExerciseToPlan = addExerciseToPlan;
-        window.retrySearch = retrySearch;
-        window.selectWeek = selectWeek;
-        window.showWorkout = showWorkout;
-        window.updateExerciseSelection = updateExerciseSelection;
-        window.updateSetData = updateSetData;
-        window.updateComments = updateComments;
-        window.addSet = addSet;
-        window.removeSet = removeSet;
-
-        // Add keyboard support for search
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modal = document.getElementById('exerciseModal');
-                if (modal && modal.style.display === 'flex') {
-                    closeExerciseModal();
-                }
-            }
-        });
-
         // Initialize the app when page loads
         window.addEventListener('load', () => {
             initAuth();
         });
-
     </script>
-
-    <div id="authContainer" class="auth-container">
-        <h2 id="authTitle">Welcome to Split Tracker</h2>
-        
-        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-        </button>
-        
-        <div class="divider">or</div>
-        
-        <form id="authForm" class="auth-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
-            <div id="authError" class="error"></div>
-        </form>
-        <div class="auth-switch">
-            <span id="authSwitchText">Don't have an account?</span>
-            <button type="button" id="authSwitchBtn">Sign Up</button>
-        </div>
-    </div>
-
-    <div id="loadingScreen" class="loading" style="display: none;">
-        <h2>Loading your workouts...</h2>
-    </div>
-
-    <div id="appContainer" class="container" style="display: none;">
-        <div class="header">
-            <h1>💪 Split Workout Tracker</h1>
-            <p>2 on • 1 off • 2 on • 1-2 off</p>
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-btn" onclick="handleLogout()">Logout</button>
-        </div>
-
-        <div class="controls">
-            <div class="week-selector">
-                <label for="weekSelect">Week</label>
-                <select id="weekSelect" onchange="selectWeek(this.value)">
-                    <option value="1">Week 1</option>
-                    <option value="2">Week 2</option>
-                    <option value="3">Week 3</option>
-                    <option value="4">Week 4</option>
-                    <option value="5">Week 5</option>
-                    <option value="6">Week 6</option>
-                    <option value="7">Week 7</option>
-                    <option value="8">Week 8</option>
-                    <option value="9">Week 9</option>
-                    <option value="10">Week 10</option>
-                    <option value="11">Week 11</option>
-                    <option value="12">Week 12</option>
-                </select>
-            </div>
-
-            <div class="workout-selector">
-                <label for="workoutSelect">Workout</label>
-                <select id="workoutSelect" onchange="showWorkout(this.value)">
-                    <option value="upperA">Upper A</option>
-                    <option value="lowerA">Lower A</option>
-                    <option value="rest1">Rest Day</option>
-                    <option value="upperB">Upper B</option>
-                    <option value="lowerB">Lower B</option>
-                    <option value="rest2">Rest Day</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="exercise-catalog-btn-container">
-            <button class="exercise-catalog-btn" onclick="openExerciseModal()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                Browse Exercise Catalog
-            </button>
-        </div>
-
-        <div id="workoutContent" class="workout-content">
-            <!-- Content will be dynamically generated -->
-        </div>
-    </div>
-
-    <!-- Exercise Catalog Modal -->
-    <div id="exerciseModal" class="modal" style="display: none;">
-        <div class="modal-backdrop" onclick="closeExerciseModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercise Catalog</h2>
-                <button class="modal-close" onclick="closeExerciseModal()">×</button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Search and Filters -->
-                <div class="exercise-search-section">
-                    <div class="search-box">
-                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." oninput="searchExercises(this.value)">
-                        <button class="search-btn" onclick="searchExercises(document.getElementById('exerciseSearch').value)">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label for="muscleFilter">Muscle Group</label>
-                            <select id="muscleFilter" onchange="filterExercises()">
-                                <option value="">All Muscles</option>
-                                <option value="abdominals">Abdominals</option>
-                                <option value="biceps">Biceps</option>
-                                <option value="calves">Calves</option>
-                                <option value="chest">Chest</option>
-                                <option value="delts">Delts</option>
-                                <option value="forearms">Forearms</option>
-                                <option value="glutes">Glutes</option>
-                                <option value="hamstrings">Hamstrings</option>
-                                <option value="lats">Lats</option>
-                                <option value="quads">Quads</option>
-                                <option value="traps">Traps</option>
-                                <option value="triceps">Triceps</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-group">
-                            <label for="equipmentFilter">Equipment</label>
-                            <select id="equipmentFilter" onchange="filterExercises()">
-                                <option value="">All Equipment</option>
-                                <option value="barbell">Barbell</option>
-                                <option value="dumbbell">Dumbbell</option>
-                                <option value="cable">Cable</option>
-                                <option value="machine">Machine</option>
-                                <option value="bodyweight">Bodyweight</option>
-                                <option value="kettlebell">Kettlebell</option>
-                                <option value="resistance band">Resistance Band</option>
-                            </select>
-                        </div>
-
-                        <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
-                    </div>
-                </div>
-
-                <!-- Results -->
-                <div class="exercise-results">
-                    <div id="exerciseLoading" class="exercise-loading" style="display: none;">
-                        <div class="loading-spinner"></div>
-                        <p>Searching exercises...</p>
-                    </div>
-
-                    <div id="exerciseError" class="exercise-error" style="display: none;">
-                        <p>Failed to load exercises. Please try again.</p>
-                        <button class="retry-btn" onclick="retrySearch()">Retry</button>
-                    </div>
-
-                    <div id="exerciseList" class="exercise-list">
-                        <div class="no-results">
-                            <p>Search or filter exercises to get started</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
-
 </body>
 </html>
-            
