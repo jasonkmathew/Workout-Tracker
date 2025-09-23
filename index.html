@@ -16,7 +16,7 @@
             --danger: #e53e3e;
             --success: #34C759;
             --border-color: rgba(255, 255, 255, 0.1);
-            --shadow-color: rgba(0, 0, 0, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.4);
             --accent-rgb: 124, 58, 237;
         }
 
@@ -33,6 +33,7 @@
             min-height: 100vh;
             color: var(--text);
             line-height: 1.5;
+            padding-bottom: 80px; /* Space for mobile nav */
         }
 
         .container {
@@ -40,370 +41,184 @@
             margin: 0 auto;
             padding: 10px;
         }
+        
+        /* --- GENERAL UI COMPONENTS --- */
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
 
-        /* --- AUTHENTICATION CONTAINER --- */
+        .page-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        button.primary, a.primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        button.primary:hover, a.primary:hover { background: var(--accent-hover); }
+
+        button.secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        button.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
+
+        /* --- AUTHENTICATION --- */
         .auth-container {
             max-width: 400px;
             margin: 50px auto;
             padding: 40px;
-            background: var(--card);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 30px var(--shadow-color);
             text-align: center;
         }
-
-        .auth-container h2 {
-            margin-bottom: 25px;
-            color: var(--text);
-            font-size: 1.8rem;
-        }
-
+        .auth-container h2 { margin-bottom: 25px; font-size: 1.8rem; }
         .google-btn {
             background: transparent;
             color: var(--text);
             border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin: 0 auto 20px auto;
-            width: 100%;
-            transition: all 0.2s ease;
+            padding: 12px; border-radius: 10px; font-size: 1rem; cursor: pointer;
+            font-weight: 600; display: flex; align-items: center; justify-content: center;
+            gap: 12px; margin: 0 auto 20px auto; width: 100%; transition: all 0.2s ease;
         }
-
-        .google-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent);
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-
-        .divider::before { margin-right: 15px; }
-        .divider::after { margin-left: 15px; }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .auth-form input {
-            background: var(--bg);
-            color: var(--text);
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .auth-form input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        /* --- BUTTONS --- */
-        .auth-btn, .add-set {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
-        }
-
-        .auth-btn:hover, .add-set:hover {
-            background: var(--accent-hover);
-        }
-        
-        .logout-btn, .remove-set {
-            background: var(--danger);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .logout-btn:hover, .remove-set:hover {
-            background: #ff5252;
-        }
-        
-        .logout-btn { padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; }
-        .remove-set { padding: 4px 8px; border-radius: 5px; font-size: 0.8rem; }
-        .add-set { font-size: 0.85rem; padding: 8px 14px; margin-bottom: 10px; }
-
-        .auth-switch {
-            margin-top: 20px;
-            color: var(--muted);
-        }
-
-        .auth-switch button {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 1em;
-        }
-
-        /* --- LOADING & ERRORS --- */
-        .loading { text-align: center; padding: 50px; color: var(--muted); }
+        .google-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--accent); }
+        .divider { display: flex; align-items: center; margin: 20px 0; color: var(--muted); }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+        .divider::before { margin-right: 15px; } .divider::after { margin-left: 15px; }
+        .auth-form { display: flex; flex-direction: column; gap: 15px; }
+        .auth-switch { margin-top: 20px; color: var(--muted); }
+        .auth-switch button { background: none; border: none; color: var(--accent); cursor: pointer; text-decoration: underline; font-size: 1em; }
         .error { color: var(--danger); font-size: 0.9rem; margin-top: 15px; min-height: 1em; }
 
-        /* --- MAIN APP UI --- */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
+        /* --- MOBILE NAVIGATION --- */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
             background: var(--card);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 15px var(--shadow-color);
-            position: relative;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
         }
-
-        .header h1 {
-            font-size: 1.6rem;
-            color: var(--text);
-            margin-bottom: 5px;
+        .nav-btn {
+            background: none; border: none; color: var(--muted);
+            cursor: pointer; display: flex; flex-direction: column;
+            align-items: center; gap: 4px; padding: 5px 10px;
+            font-size: 0.75rem; transition: color 0.2s ease; flex: 1;
         }
+        .nav-btn svg { width: 24px; height: 24px; stroke: var(--muted); transition: stroke 0.2s ease; }
+        .nav-btn.active, .nav-btn:hover { color: var(--accent); }
+        .nav-btn.active svg, .nav-btn:hover svg { stroke: var(--accent); }
 
+        /* --- TRACKER PAGE --- */
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
+        .header h1 { font-size: 1.6rem; color: var(--text); margin-bottom: 5px; }
         .header p { font-size: 0.9rem; color: var(--muted); }
-        .user-info { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+        .logout-btn { position: absolute; top: 0; right: 0; background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+        .controls { display: flex; gap: 15px; }
+        .controls > div { flex: 1; }
 
-        .logout-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-        }
-
-        .controls {
-            background: var(--card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-
-        .week-selector, .workout-selector { margin-bottom: 15px; }
-        .week-selector:last-child, .workout-selector:last-child { margin-bottom: 0; }
-        
-        .week-selector label, .workout-selector label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        .week-selector select, .workout-selector select, .exercise-select select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
-            background: var(--bg);
-            color: var(--text);
-            cursor: pointer;
-        }
-        .week-selector select:focus, .workout-selector select:focus, .exercise-select select:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .workout-content {
-            background: var(--card);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-
-        .exercise {
-            border-bottom: 1px solid var(--border-color);
-            padding: 20px 0;
-        }
+        .exercise { border-bottom: 1px solid var(--border-color); padding: 20px 0; }
         .exercise:last-child { border-bottom: none; }
-        .exercise:first-child { padding-top: 5px; }
-
         .exercise-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 5px; }
         .exercise-info { font-size: 0.85rem; color: var(--muted); margin-bottom: 15px; }
-        .exercise-select { margin-bottom: 15px; }
-
-        /* --- SETS GRID --- */
-        .sets-grid {
-            display: grid;
-            grid-template-columns: 40px 1fr 1fr 60px;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
+        .sets-grid { display: grid; grid-template-columns: 40px 1fr 1fr 40px; gap: 10px; align-items: center; margin-bottom: 8px; }
         .sets-grid label { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
-
-        .sets-grid input {
-            padding: 10px 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.95rem;
-            text-align: center;
-            transition: all 0.2s ease;
-            background: var(--bg);
-            color: var(--text);
-            width: 100%;
-        }
-        
-        .sets-grid input:focus {
-            outline: none;
-            border-color: var(--accent);
-            background: var(--card);
-        }
-
-        .sets-grid input.previous-data {
-            background: transparent;
-            color: var(--muted);
-            border-style: dashed;
-        }
-
-        .sets-grid input.current-data {
-            border: 1px solid var(--accent);
-            background: rgba(var(--accent-rgb), 0.1);
-        }
-
-        .previous-note {
-            grid-column: 1 / -1;
-            font-size: 0.75rem;
-            color: var(--muted);
-            font-style: italic;
-            text-align: center;
-            margin-top: -4px;
-        }
-        
-        /* --- TIPS & NOTES --- */
-        .exercise-tips, .tempo-key {
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent);
-            background: rgba(var(--accent-rgb), 0.08);
-        }
-
-        .exercise-tips h4, .tempo-key h4 {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: var(--accent-hover);
-        }
-
-        .exercise-tips p, .tempo-key p {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.4;
-            margin: 2px 0;
-        }
-        
-        .tempo-key p { color: var(--text); }
-        .tempo-key p strong { font-weight: 600; color: var(--accent-hover); }
-
+        .sets-grid input { padding: 10px 8px; text-align: center; inputmode: decimal; } /* Mobile keyboard */
+        .sets-grid input.previous-data { background: transparent; color: var(--muted); border-style: dashed; }
+        .sets-grid input.current-data { border: 1px solid var(--accent); background: rgba(var(--accent-rgb), 0.1); }
+        button.remove-set { background: var(--danger); color: white; border: none; border-radius: 5px; cursor: pointer; width: 30px; height: 30px; font-size: 1rem; }
+        .exercise-tips, .tempo-key { padding: 12px; margin: 15px 0; border-radius: 8px; border-left: 3px solid var(--accent); background: rgba(var(--accent-rgb), 0.08); }
+        .exercise-tips h4, .tempo-key h4 { font-size: 0.9rem; margin-bottom: 5px; color: var(--accent-hover); }
+        .exercise-tips p, .tempo-key p { font-size: 0.85rem; color: var(--muted); }
         .comments { margin-top: 15px; }
-        .comments label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .comments textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            resize: vertical;
-            min-height: 70px;
-            background: var(--bg);
-            color: var(--text);
-        }
-        .comments textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .rest-day { text-align: center; padding: 40px 20px; color: var(--muted); }
-        .rest-day h2 { margin-bottom: 10px; font-size: 1.5rem; color: var(--text); }
-
-        .save-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transform: translateY(-80px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .save-indicator.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
         
-        /* --- RESPONSIVE DESIGN --- */
-        @media (max-width: 480px) {
-            .container { padding: 5px; }
-            .auth-container { padding: 25px; margin: 20px auto; }
-            
-            .sets-grid {
-                grid-template-columns: 35px 1fr 1fr 50px;
-                gap: 6px;
-            }
-            
-            .sets-grid input { padding: 8px 6px; font-size: 0.9rem; }
+        /* --- EXERCISES PAGE --- */
+        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+        .filters > * { flex: 1; min-width: 120px; }
+        #exerciseList .exercise-item { border-bottom: 1px solid var(--border-color); padding: 15px 5px; display: flex; align-items: center; justify-content: space-between; }
+        #exerciseList .exercise-item:last-child { border-bottom: none; }
+        .exercise-item-info strong { display: block; font-size: 1.1rem; }
+        .exercise-item-info span { color: var(--muted); font-size: 0.85rem; text-transform: capitalize; }
+        .loading-skeleton { background-color: #2a2a2e; border-radius: 8px; margin: 10px 0; }
+        .skeleton-text { height: 1.2em; margin-bottom: 0.5em; }
+        .skeleton-text:last-child { width: 70%; }
+        
+        /* --- PLANS PAGE --- */
+        .plan-list-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 10px; }
+        .plan-list-item.preset { border-style: dashed; color: var(--muted); }
+        .plan-info strong { font-size: 1.2rem; }
+        .plan-info span { font-size: 0.85rem; color: var(--muted); }
 
-            .logout-btn {
-                position: static;
-                margin-top: 15px;
-                display: block;
-                width: 100%;
-            }
-
-            .header, .controls, .workout-content { padding: 15px; }
-        }
+        /* --- MODAL FOR PLAN BUILDER --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: none; }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); border-radius: 16px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 25px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 1.5rem; }
+        .modal-close { background: none; border: none; color: var(--muted); font-size: 2rem; cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        #dayListContainer .day-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+        #dayListContainer .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        /* --- UTILITIES --- */
+        .text-center { text-align: center; }
+        .mt-20 { margin-top: 20px; }
+        .d-flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .align-center { align-items: center; }
+        .gap-10 { gap: 10px; }
+        
     </style>
 </head>
 <body>
     <script type="module">
+        // --- FIREBASE IMPORTS & CONFIG ---
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, updateDoc, deleteField } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC91rY8_FSfQfXkoFuhT0I_H_fan6VLNe0",
             authDomain: "split-workout-tracker.firebaseapp.com",
@@ -414,717 +229,554 @@
             measurementId: "G-1F6C2R60P7"
         };
 
-        // Initialize Firebase
+        // --- FIREBASE INITIALIZATION ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Global variables
-        window.auth = auth;
-        window.db = db;
-        window.doc = doc;
-        window.setDoc = setDoc;
-        window.getDoc = getDoc;
-        window.onSnapshot = onSnapshot;
-        window.collection = collection;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signOut = signOut;
-        window.GoogleAuthProvider = GoogleAuthProvider;
-        window.signInWithPopup = signInWithPopup;
-    </script>
-
-    <div id="authContainer" class="auth-container">
-        <h2 id="authTitle">Welcome to Split Tracker</h2>
-        
-        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H18.19C17.93 15.63 17.17 16.78 16.05 17.59V20.36H19.59C21.66 18.44 22.56 15.63 22.56 12.25Z" fill="#4285F4"></path>
-                <path d="M12 23C15.24 23 17.95 21.92 19.59 20.36L16.05 17.59C15.01 18.25 13.62 18.66 12 18.66C8.86 18.66 6.16 16.69 5.27 13.91H1.64V16.74C3.4 20.44 7.35 23 12 23Z" fill="#34A853"></path>
-                <path d="M5.27 13.91C5.04 13.25 4.9 12.55 4.9 11.83C4.9 11.11 5.04 10.41 5.27 9.75V6.92H1.64C0.85 8.48 0.36 10.1 0.36 11.83C0.36 13.56 0.85 15.18 1.64 16.74L5.27 13.91Z" fill="#FBBC05"></path>
-                <path d="M12 5C13.79 5 15.36 5.66 16.53 6.78L19.68 3.63C17.95 1.98 15.24 1 12 1C7.35 1 3.4 3.56 1.64 7.26L5.27 10.09C6.16 7.31 8.86 5 12 5Z" fill="#EA4335"></path>
-            </svg>
-            Continue with Google
-        </button>
-        
-        <div class="divider">or</div>
-        
-        <form id="authForm" class="auth-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
-            <div id="authError" class="error"></div>
-        </form>
-        <div class="auth-switch">
-            <span id="authSwitchText">Don't have an account?</span>
-            <button type="button" id="authSwitchBtn">Sign Up</button>
-        </div>
-    </div>
-
-    <div id="loadingScreen" class="loading" style="display: none;">
-        <h2>Loading your workouts...</h2>
-    </div>
-
-    <div id="appContainer" class="container" style="display: none;">
-        <div class="header">
-            <h1>💪 Split Workout Tracker</h1>
-            <p>2 on • 1 off • 2 on • 1-2 off</p>
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-btn" onclick="handleLogout()">Logout</button>
-        </div>
-
-        <div class="controls">
-            <div class="week-selector">
-                <label for="weekSelect">Week</label>
-                <select id="weekSelect" onchange="selectWeek(this.value)">
-                    <option value="1">Week 1</option>
-                    <option value="2">Week 2</option>
-                    <option value="3">Week 3</option>
-                    <option value="4">Week 4</option>
-                    <option value="5">Week 5</option>
-                    <option value="6">Week 6</option>
-                    <option value="7">Week 7</option>
-                    <option value="8">Week 8</option>
-                    <option value="9">Week 9</option>
-                    <option value="10">Week 10</option>
-                    <option value="11">Week 11</option>
-                    <option value="12">Week 12</option>
-                </select>
-            </div>
-
-            <div class="workout-selector">
-                <label for="workoutSelect">Workout</label>
-                <select id="workoutSelect" onchange="showWorkout(this.value)">
-                    <option value="upperA">Upper A</option>
-                    <option value="lowerA">Lower A</option>
-                    <option value="rest1">Rest Day</option>
-                    <option value="upperB">Upper B</option>
-                    <option value="lowerB">Lower B</option>
-                    <option value="rest2">Rest Day</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="workoutContent" class="workout-content">
-            </div>
-    </div>
-
-    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
-
-    <script>
+        // --- GLOBAL APP STATE ---
         let currentUser = null;
+        let currentView = 'tracker';
         let currentWeek = 1;
-        let currentWorkout = 'upperA';
-        let workoutData = {};
-        let isSignUp = false;
-
-        // Exercise execution tips and tempo explanations
-        const exerciseTips = {
-            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
-            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
-            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
-            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
-            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
-            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
-            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
-            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
-            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
-            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
-            "Adductors": "Set machine as wide as possible to force a stretch.",
-            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
-            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
-            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
-            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
-            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
-            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
-            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
-            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
-            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
-            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
-            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
-            "Lunges": "Control descent, brief pause, drive through front heel to return.",
-            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
-        };
-
-        const tempoKey = `
-            <div class="tempo-key">
-                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
-                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
-                <p><strong>1</strong> = Pause at stretch/bottom position</p>
-                <p><strong>1</strong> = Concentric (lifting) seconds</p>
-                <p><strong>1</strong> = Pause at contraction/top</p>
-            </div>
-        `;
-
-        // Workout definitions
-        const workouts = {
-            upperA: {
-                name: "Upper A",
-                exercises: [
-                    {
-                        name: "Incline Press",
-                        sets: "1-2 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Incline DB Press", "Incline Smith Machine", "Incline Barbell", "Incline Press Machine"]
-                    },
-                    {
-                        name: "Chest Fly",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Chest Fly Machine", "Seated Cable Fly", "Flat DB Flys"]
-                    },
-                    {
-                        name: "Lat Pulldown",
-                        sets: "2-3 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Wide Grip", "Neutral Grip", "Pulldown Machine"]
-                    },
-                    {
-                        name: "Mid Back Row",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Seated Machine Row", "Cable Row"]
-                    },
-                    {
-                        name: "Lateral Raise",
-                        sets: "2-4 sets",
-                        reps: "10-15 reps",
-                        tempo: "4:1:1:1",
-                        options: ["DB Lateral Raise", "Lateral Raise Machine", "Cable Lateral Raise"]
-                    },
-                    {
-                        name: "Tricep Pushdown",
-                        sets: "2-4 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:2:1:1",
-                        options: ["Rope", "V-Bar", "Straight Bar"]
-                    },
-                    {
-                        name: "DB Curl",
-                        sets: "2-4 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Alternating DB Curl", "Hammer Curl", "Seated", "Standing"]
-                    }
-                ]
-            },
-            lowerA: {
-                name: "Lower A",
-                exercises: [
-                    {
-                        name: "Leg Curl",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "4:1:1:1",
-                        options: ["Seated Leg Curl"]
-                    },
-                    {
-                        name: "Leg Extension",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Standard", "Leaning Back"]
-                    },
-                    {
-                        name: "Squat",
-                        sets: "1-2 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:1",
-                        options: ["High Bar Back Squat", "Front Squat", "Smith Machine", "Hack Squat"]
-                    },
-                    {
-                        name: "Adductors",
-                        sets: "2-3 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:2:1:1",
-                        options: ["Adductor Machine"]
-                    },
-                    {
-                        name: "Calf Raise",
-                        sets: "3-5 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:2:1:2",
-                        options: ["Standing Machine", "Donkey", "Leg Press"]
-                    },
-                    {
-                        name: "Abs",
-                        sets: "3-5 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Crunch Machine", "Cable Crunches"]
-                    }
-                ]
-            },
-            upperB: {
-                name: "Upper B",
-                exercises: [
-                    {
-                        name: "Pullover",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Cable Pullover", "Machine Pulldown"]
-                    },
-                    {
-                        name: "Upper Back Row",
-                        sets: "2-3 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:2",
-                        options: ["T-Bar Row", "Machine Row", "DB Row"]
-                    },
-                    {
-                        name: "Rear Delt Fly",
-                        sets: "2-4 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:2:1:2",
-                        options: ["Machine", "Cable", "DB Fly"]
-                    },
-                    {
-                        name: "Shoulder Press",
-                        sets: "1-2 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["DB Press", "Smith Machine", "Machine Press"]
-                    },
-                    {
-                        name: "Chest Press (RPS)",
-                        sets: "Rest Pause",
-                        reps: "10-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Machine Press", "Smith Bench"]
-                    },
-                    {
-                        name: "Lower Chest",
-                        sets: "2-3 sets",
-                        reps: "10-15 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Decline Cable", "Cable Fly"]
-                    },
-                    {
-                        name: "Preacher Curl",
-                        sets: "2-4 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:2:1:2",
-                        options: ["DB", "Cable", "Machine", "Barbell"]
-                    },
-                    {
-                        name: "Tricep Extension",
-                        sets: "2-4 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:2:1:1",
-                        options: ["Skull Crushers", "JM Press"]
-                    }
-                ]
-            },
-            lowerB: {
-                name: "Lower B",
-                exercises: [
-                    {
-                        name: "Lying Leg Curl",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "4:2:1:2",
-                        options: ["Lying Leg Curl"]
-                    },
-                    {
-                        name: "Leg Extension (RPS)",
-                        sets: "Rest Pause",
-                        reps: "12-15 reps",
-                        tempo: "3:1:1:2",
-                        options: ["Standard", "Leaning Back"]
-                    },
-                    {
-                        name: "Romanian Deadlift",
-                        sets: "2 sets",
-                        reps: "8-12 reps",
-                        tempo: "4:1:1:1",
-                        options: ["Dumbbells", "Barbell", "Belt Squat"]
-                    },
-                    {
-                        name: "Lunges",
-                        sets: "2 sets",
-                        reps: "8-12 reps/leg",
-                        tempo: "3:1:1:1",
-                        options: ["Walking DB", "Split Squat", "Bulgarian", "Leg Press"]
-                    },
-                    {
-                        name: "Calf Raise",
-                        sets: "3-5 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:2:1:2",
-                        options: ["Standing Machine", "Donkey", "Leg Press"]
-                    },
-                    {
-                        name: "Leg Raises",
-                        sets: "3-5 sets",
-                        reps: "AMRAP",
-                        tempo: "3:1:1:1",
-                        options: ["Hanging", "Machine", "Lying"]
-                    }
-                ]
+        let currentPlanId = 'preset-upper-lower';
+        let currentDayKey = 'upperA';
+        let userData = {
+            workouts: {},
+            userPlans: {},
+            settings: {
+                currentPlanId: 'preset-upper-lower'
             }
         };
 
-        // Authentication functions
-        function initAuth() {
-            const authForm = document.getElementById('authForm');
-            const authSwitchBtn = document.getElementById('authSwitchBtn');
-
-            authForm.addEventListener('submit', handleAuth);
-            authSwitchBtn.addEventListener('click', toggleAuthMode);
-
-            // Listen for auth state changes
-            window.onAuthStateChanged(window.auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    showApp();
-                    loadUserData();
-                } else {
-                    currentUser = null;
-                    showAuth();
-                }
-            });
-        }
-
-        async function handleGoogleAuth() {
-            const errorDiv = document.getElementById('authError');
-            
-            try {
-                const provider = new window.GoogleAuthProvider();
-                await window.signInWithPopup(window.auth, provider);
-            } catch (error) {
-                console.error('Google auth error:', error);
-                errorDiv.textContent = error.message;
+        // --- PRESET PLANS ---
+        const presets = {
+            'preset-upper-lower': {
+                name: "Upper Lower (Classic)",
+                isPreset: true,
+                days: [
+                    { key: "upperA", name: "Upper A", type: "workout" },
+                    { key: "lowerA", name: "Lower A", type: "workout" },
+                    { key: "rest1", name: "Rest", type: "rest" },
+                    { key: "upperB", name: "Upper B", type: "workout" },
+                    { key: "lowerB", name: "Lower B", type: "workout" },
+                    { key: "rest2", name: "Rest", type: "rest" },
+                ],
+                workouts: { /* Defined in separate object for clarity */ }
             }
-        }
+        };
+        
+        // --- PRESET WORKOUT DEFINITIONS ---
+        presets['preset-upper-lower'].workouts = {
+            upperA: { exercises: [ { name: "Incline Press", sets: "2", reps: "6-10", tempo: "3:1:1:1" }, { name: "Chest Fly", sets: "3", reps: "8-12", tempo: "3:1:1:1" }, { name: "Lat Pulldown", sets: "3", reps: "6-10", tempo: "3:1:1:1" }, { name: "Mid Back Row", sets: "3", reps: "8-12", tempo: "3:1:1:1" }, { name: "Lateral Raise", sets: "4", reps: "10-15", tempo: "4:1:1:1" }, { name: "Tricep Pushdown", sets: "3", reps: "8-12", tempo: "3:2:1:1" }, { name: "DB Curl", sets: "3", reps: "8-12", tempo: "3:1:1:1" } ] },
+            lowerA: { exercises: [ { name: "Leg Curl", sets: "3", reps: "8-12", tempo: "4:1:1:1" }, { name: "Leg Extension", sets: "3", reps: "8-12", tempo: "3:1:1:1" }, { name: "Squat", sets: "2", reps: "6-10", tempo: "3:1:1:1" }, { name: "Adductors", sets: "3", reps: "10-15", tempo: "3:2:1:1" }, { name: "Calf Raise", sets: "4", reps: "10-15", tempo: "3:2:1:2" }, { name: "Abs", sets: "4", reps: "10-15", tempo: "3:1:1:1" } ] },
+            upperB: { exercises: [ { name: "Pullover", sets: "3", reps: "8-12", tempo: "3:1:1:1" }, { name: "Upper Back Row", sets: "3", reps: "6-10", tempo: "3:1:1:2" }, { name: "Rear Delt Fly", sets: "4", reps: "10-15", tempo: "3:2:1:2" }, { name: "Shoulder Press", sets: "2", reps: "8-12", tempo: "3:1:1:1" }, { name: "Chest Press (RPS)", sets: "1", reps: "10-12", tempo: "3:1:1:1" }, { name: "Preacher Curl", sets: "3", reps: "8-12", tempo: "3:2:1:2" }, { name: "Tricep Extension", sets: "3", reps: "8-12", tempo: "3:2:1:1" } ] },
+            lowerB: { exercises: [ { name: "Lying Leg Curl", sets: "3", reps: "8-12", tempo: "4:2:1:2" }, { name: "Leg Extension (RPS)", sets: "1", reps: "12-15", tempo: "3:1:1:2" }, { name: "Romanian Deadlift", sets: "2", reps: "8-12", tempo: "4:1:1:1" }, { name: "Lunges", sets: "2", reps: "8-12", tempo: "3:1:1:1" }, { name: "Calf Raise", sets: "4", reps: "8-12", tempo: "3:2:1:2" }, { name: "Leg Raises", sets: "4", reps: "AMRAP", tempo: "3:1:1:1" } ] }
+        };
 
-        function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            const authTitle = document.getElementById('authTitle');
-            const authBtn = document.getElementById('authBtn');
-            const authSwitchText = document.getElementById('authSwitchText');
-            const authSwitchBtn = document.getElementById('authSwitchBtn');
-
-            if (isSignUp) {
-                authTitle.textContent = 'Create Account';
-                authBtn.textContent = 'Sign Up';
-                authSwitchText.textContent = 'Already have an account?';
-                authSwitchBtn.textContent = 'Sign In';
-            } else {
-                authTitle.textContent = 'Welcome Back';
-                authBtn.textContent = 'Sign In';
-                authSwitchText.textContent = "Don't have an account?";
-                authSwitchBtn.textContent = 'Sign Up';
-            }
-        }
-
-        async function handleAuth(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('authError');
-
-            try {
-                if (isSignUp) {
-                    await window.createUserWithEmailAndPassword(window.auth, email, password);
-                } else {
-                    await window.signInWithEmailAndPassword(window.auth, email, password);
-                }
-            } catch (error) {
-                errorDiv.textContent = error.message;
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await window.signOut(window.auth);
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        }
-
-        function showAuth() {
-            document.getElementById('authContainer').style.display = 'block';
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'none';
-        }
-
-        function showApp() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-            document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
-        }
-
-        function showLoading() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'block';
-            document.getElementById('appContainer').style.display = 'none';
-        }
-
-        // Data functions
-        function initializeWorkoutData() {
-            workoutData = {};
-            for (let week = 1; week <= 12; week++) {
-                workoutData[week] = {};
-                for (let workoutKey in workouts) {
-                    workoutData[week][workoutKey] = {};
-                    workouts[workoutKey].exercises.forEach((exercise, index) => {
-                        workoutData[week][workoutKey][index] = {
-                            selectedExercise: exercise.options[0],
-                            sets: [{ weight: '', reps: '' }, { weight: '', reps: '' }],
-                            comments: ''
-                        };
-                    });
-                }
-            }
-        }
-
-        async function loadUserData() {
-            if (!currentUser) return;
+        window.app = {
+            init() { this.auth.init(); this.nav.init(); this.exercises.init(); this.plans.init(); },
             
-            showLoading();
-            
-            try {
-                const userDocRef = window.doc(window.db, 'users', currentUser.uid);
-                const userDoc = await window.getDoc(userDocRef);
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    if (userData.workouts) {
-                        workoutData = userData.workouts;
-                    } else {
-                        initializeWorkoutData();
-                    }
-                } else {
-                    initializeWorkoutData();
-                    await saveUserData();
-                }
-            } catch (error) {
-                console.error('Error loading user data:', error);
-                initializeWorkoutData();
-            }
-            
-            showApp();
-            showWorkout(currentWorkout);
-        }
+            // --- AUTHENTICATION MODULE ---
+            auth: {
+                init() {
+                    document.getElementById('authForm').addEventListener('submit', (e) => this.handleAuth(e));
+                    document.getElementById('authSwitchBtn').addEventListener('click', () => this.toggleAuthMode());
+                    document.getElementById('googleAuthBtn').addEventListener('click', () => this.handleGoogleAuth());
+                    document.querySelector('.logout-btn').addEventListener('click', () => this.handleLogout());
 
-        async function saveUserData() {
-            if (!currentUser) return;
-            
-            try {
-                const userDocRef = window.doc(window.db, 'users', currentUser.uid);
-                await window.setDoc(userDocRef, {
-                    workouts: workoutData,
-                    lastUpdated: new Date()
-                }, { merge: true });
-                
-                showSaveIndicator();
-            } catch (error) {
-                console.error('Error saving user data:', error);
-            }
-        }
-
-        // App functions
-        function selectWeek(week) {
-            currentWeek = parseInt(week);
-            showWorkout(currentWorkout);
-        }
-
-        function showWorkout(workoutKey) {
-            currentWorkout = workoutKey;
-            document.getElementById('workoutSelect').value = workoutKey;
-
-            const content = document.getElementById('workoutContent');
-            
-            if (workoutKey === 'rest1' || workoutKey === 'rest2') {
-                content.innerHTML = `
-                    <div class="rest-day">
-                        <h2>🛌 Rest Day</h2>
-                        <p>Recovery time - prepare for your next workout!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const workout = workouts[workoutKey];
-            let html = tempoKey;
-            
-            workout.exercises.forEach((exercise, index) => {
-                const exerciseData = workoutData[currentWeek][workoutKey][index];
-                const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][workoutKey][index] : null;
-                const tips = exerciseTips[exercise.name] || "Focus on proper form and controlled movement.";
-                
-                html += `
-                    <div class="exercise">
-                        <div class="exercise-name">${exercise.name}</div>
-                        <div class="exercise-info">${exercise.sets} • ${exercise.reps} • ${exercise.tempo}</div>
-                        
-                        <div class="exercise-select">
-                            <select onchange="updateExerciseSelection(${index}, this.value)">
-                                ${exercise.options.map(option => `
-                                    <option value="${option}" ${exerciseData.selectedExercise === option ? 'selected' : ''}>
-                                        ${option}
-                                    </option>
-                                `).join('')}
-                            </select>
-                        </div>
-                        
-                        <div id="sets-${index}">
-                            ${generateSetsHTML(index, exerciseData, previousWeekData)}
-                        </div>
-                        
-                        <button class="add-set" onclick="addSet(${index})">+ Add Set</button>
-                        
-                        <div class="exercise-tips">
-                            <h4>Execution Tips:</h4>
-                            <p>${tips}</p>
-                        </div>
-                        
-                        <div class="comments">
-                            <label>Notes</label>
-                            <textarea 
-                                placeholder="Form notes, improvements, etc..."
-                                onchange="updateComments(${index}, this.value)"
-                            >${exerciseData.comments}</textarea>
-                        </div>
-                    </div>
-                `;
-            });
-
-            content.innerHTML = html;
-        }
-
-        function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
-            let html = '';
-            
-            // Determine how many sets to show (current data or previous data, whichever is more)
-            const currentSets = exerciseData.sets.length;
-            const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
-            const maxSets = Math.max(currentSets, previousSets, 2); // Minimum 2 sets
-            
-            // Ensure we have enough sets in current data
-            while (exerciseData.sets.length < maxSets) {
-                exerciseData.sets.push({ weight: '', reps: '' });
-            }
-            
-            for (let setIndex = 0; setIndex < maxSets; setIndex++) {
-                const currentSet = exerciseData.sets[setIndex] || { weight: '', reps: '' };
-                const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
-                
-                // Use previous week's data as placeholder if current is empty
-                const weightValue = currentSet.weight !== '' ? currentSet.weight : 
-                                  (previousSet && currentWeek > 1 ? previousSet.weight : '');
-                const repsValue = currentSet.reps !== '' ? currentSet.reps : 
-                                (previousSet && currentWeek > 1 ? previousSet.reps : '');
-                
-                // Determine input styling based on data source
-                const hasCurrentData = currentSet.weight !== '' || currentSet.reps !== '';
-                const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1;
-                
-                let weightClass = '';
-                let repsClass = '';
-                let weightPlaceholder = 'Weight';
-                let repsPlaceholder = 'Reps';
-                
-                if (hasCurrentData) {
-                    weightClass = 'current-data';
-                    repsClass = 'current-data';
-                } else if (hasPreviousData && !hasCurrentData) {
-                    weightClass = 'previous-data';
-                    repsClass = 'previous-data';
-                    weightPlaceholder = `Last: ${previousSet.weight || '?'}`;
-                    repsPlaceholder = `Last: ${previousSet.reps || '?'}`;
-                }
-                
-                html += `
-                    <div class="sets-grid">
-                        <label>S${setIndex + 1}</label>
-                        <input type="number" 
-                               placeholder="${weightPlaceholder}" 
-                               value="${weightValue}" 
-                               class="${weightClass}"
-                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'weight', this.value)"
-                               onfocus="this.classList.remove('previous-data'); this.classList.add('current-data');">
-                        <input type="number" 
-                               placeholder="${repsPlaceholder}" 
-                               value="${repsValue}"
-                               class="${repsClass}"
-                               onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'reps', this.value)"
-                               onfocus="this.classList.remove('previous-data'); this.classList.add('current-data');">
-                        ${setIndex > 1 ? `<button class="remove-set" onclick="removeSet(${exerciseIndex}, ${setIndex})">×</button>` : '<span></span>'}
-                        ${hasPreviousData && !hasCurrentData ? 
-                            `<div class="previous-note">Previous week data - click to edit</div>` : ''
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            currentUser = user;
+                            this.onLogin();
+                        } else {
+                            currentUser = null;
+                            this.onLogout();
                         }
-                    </div>
-                `;
+                    });
+                },
+                isSignUp: false,
+                toggleAuthMode() {
+                    this.isSignUp = !this.isSignUp;
+                    document.getElementById('authTitle').textContent = this.isSignUp ? 'Create Account' : 'Welcome Back';
+                    document.getElementById('authBtn').textContent = this.isSignUp ? 'Sign Up' : 'Sign In';
+                    document.getElementById('authSwitchText').textContent = this.isSignUp ? 'Already have an account?' : "Don't have an account?";
+                    document.getElementById('authSwitchBtn').textContent = this.isSignUp ? 'Sign In' : 'Sign Up';
+                },
+                async handleAuth(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    try {
+                        if (this.isSignUp) await createUserWithEmailAndPassword(auth, email, password);
+                        else await signInWithEmailAndPassword(auth, email, password);
+                    } catch (error) { document.getElementById('authError').textContent = error.message; }
+                },
+                async handleGoogleAuth() {
+                    try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+                    catch (error) { document.getElementById('authError').textContent = error.message; }
+                },
+                async handleLogout() { await signOut(auth); },
+                async onLogin() {
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+                    await window.app.data.loadUserData();
+                    window.app.nav.switchView('tracker');
+                },
+                onLogout() {
+                    document.getElementById('authContainer').style.display = 'block';
+                    document.getElementById('appContainer').style.display = 'none';
+                }
+            },
+
+            // --- NAVIGATION MODULE ---
+            nav: {
+                init() {
+                    document.querySelectorAll('.nav-btn').forEach(btn => {
+                        btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+                    });
+                },
+                switchView(view) {
+                    currentView = view;
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.getElementById(`${view}Page`).classList.add('active');
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+
+                    if (view === 'tracker') window.app.tracker.render();
+                    if (view === 'plans') window.app.plans.renderPlanList();
+                    if (view === 'exercises') window.app.exercises.search();
+                }
+            },
+
+            // --- DATA MODULE (FIRESTORE) ---
+            data: {
+                async loadUserData() {
+                    if (!currentUser) return;
+                    const userDocRef = doc(db, 'users', currentUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists()) {
+                        userData = { ...userData, ...userDoc.data() };
+                    } else {
+                        // Create initial document for new user
+                        await setDoc(userDocRef, userData);
+                    }
+                    currentPlanId = userData.settings.currentPlanId || 'preset-upper-lower';
+                },
+                async saveUserData(field, data) {
+                    if (!currentUser) return;
+                    const userDocRef = doc(db, 'users', currentUser.uid);
+                    await setDoc(userDocRef, { [field]: data, lastUpdated: new Date() }, { merge: true });
+                },
+                 async saveWorkoutData(logData) {
+                    if (!currentUser) return;
+                    const userDocRef = doc(db, 'users', currentUser.uid);
+                    // Use dot notation for deep merge
+                    const fieldPath = `workouts.${currentWeek}.${currentPlanId}.${currentDayKey}`;
+                    await updateDoc(userDocRef, { [fieldPath]: logData });
+                },
+                async savePlan(plan) {
+                    if (!currentUser) return;
+                    const planId = plan.id || `custom-${Date.now()}`;
+                    plan.id = planId;
+                    userData.userPlans[planId] = plan;
+                    await this.saveUserData('userPlans', userData.userPlans);
+                    return planId;
+                },
+                async deletePlan(planId) {
+                    if (!currentUser) return;
+                    delete userData.userPlans[planId];
+                    // To delete a field, use special sentinel value
+                    const userDocRef = doc(db, 'users', currentUser.uid);
+                    await updateDoc(userDocRef, { [`userPlans.${planId}`]: deleteField() });
+                }
+            },
+
+            // --- TRACKER MODULE ---
+            tracker: {
+                render() {
+                    this.renderPlanSelector();
+                    this.renderWorkout();
+                },
+                renderPlanSelector() {
+                    const selector = document.getElementById('planSelect');
+                    selector.innerHTML = '';
+                    // Presets
+                    Object.keys(presets).forEach(id => {
+                        selector.innerHTML += `<option value="${id}">${presets[id].name}</option>`;
+                    });
+                    // User plans
+                    Object.keys(userData.userPlans).forEach(id => {
+                        selector.innerHTML += `<option value="${id}">${userData.userPlans[id].name}</option>`;
+                    });
+                    selector.value = currentPlanId;
+                },
+                renderWorkout() {
+                    const allPlans = {...presets, ...userData.userPlans};
+                    const plan = allPlans[currentPlanId];
+                    if (!plan) { console.error("Plan not found!"); return; }
+
+                    const daySelector = document.getElementById('daySelect');
+                    daySelector.innerHTML = plan.days.map(d => `<option value="${d.key}">${d.name}</option>`).join('');
+                    daySelector.value = currentDayKey;
+
+                    const content = document.getElementById('workoutContent');
+                    const day = plan.days.find(d => d.key === currentDayKey);
+                    
+                    if (day.type === 'rest') {
+                         content.innerHTML = `<div class="card text-center"><h2>🛌 Rest Day</h2><p>Recovery is key!</p></div>`;
+                         return;
+                    }
+                    
+                    const workoutDef = plan.isPreset ? plan.workouts[day.key] : day;
+                    if (!workoutDef || !workoutDef.exercises) { content.innerHTML = `<p>No exercises for this day.</p>`; return; }
+                    
+                    const workoutLog = userData.workouts?.[currentWeek]?.[currentPlanId]?.[currentDayKey] || {};
+                    
+                    let html = '';
+                    workoutDef.exercises.forEach((ex, index) => {
+                        const exLog = workoutLog[index] || { sets: Array(Number(ex.sets) || 2).fill({weight: '', reps: ''}) };
+                        html += `
+                            <div class="exercise">
+                                <div class="exercise-name">${ex.name}</div>
+                                <div class="exercise-info">${ex.sets} sets • ${ex.reps} reps • ${ex.tempo || 'N/A'} tempo</div>
+                                ${this.generateSetsHTML(index, exLog)}
+                                <button class="secondary" onclick="window.app.tracker.addSet(${index})">+ Add Set</button>
+                            </div>
+                        `;
+                    });
+                    content.innerHTML = html;
+                },
+                generateSetsHTML(exIndex, exLog) {
+                    return exLog.sets.map((set, setIndex) => `
+                        <div class="sets-grid">
+                            <label>S${setIndex + 1}</label>
+                            <input type="tel" inputmode="decimal" placeholder="Weight" value="${set.weight}" onchange="window.app.tracker.updateSetData(${exIndex}, ${setIndex}, 'weight', this.value)">
+                            <input type="tel" inputmode="numeric" placeholder="Reps" value="${set.reps}" onchange="window.app.tracker.updateSetData(${exIndex}, ${setIndex}, 'reps', this.value)">
+                            <button class="remove-set" onclick="window.app.tracker.removeSet(${exIndex}, ${setIndex})">×</button>
+                        </div>
+                    `).join('');
+                },
+                addSet(exIndex) {
+                    let log = this.getOrCreateLog();
+                    log[exIndex].sets.push({ weight: '', reps: '' });
+                    this.updateAndRerenderExercise(exIndex, log);
+                },
+                removeSet(exIndex, setIndex) {
+                    let log = this.getOrCreateLog();
+                    log[exIndex].sets.splice(setIndex, 1);
+                    this.updateAndRerenderExercise(exIndex, log);
+                },
+                updateSetData(exIndex, setIndex, field, value) {
+                    let log = this.getOrCreateLog();
+                    log[exIndex].sets[setIndex][field] = value;
+                    window.app.data.saveWorkoutData(log);
+                },
+                getOrCreateLog() {
+                    if (!userData.workouts[currentWeek]) userData.workouts[currentWeek] = {};
+                    if (!userData.workouts[currentWeek][currentPlanId]) userData.workouts[currentWeek][currentPlanId] = {};
+                    if (!userData.workouts[currentWeek][currentPlanId][currentDayKey]) {
+                        const allPlans = {...presets, ...userData.userPlans};
+                        const plan = allPlans[currentPlanId];
+                        const day = plan.days.find(d => d.key === currentDayKey);
+                        const workoutDef = plan.isPreset ? plan.workouts[day.key] : day;
+                        
+                        const newLog = {};
+                        workoutDef.exercises.forEach((ex, index) => {
+                            newLog[index] = { sets: Array(Number(ex.sets) || 2).fill({ weight: '', reps: '' }) };
+                        });
+                        userData.workouts[currentWeek][currentPlanId][currentDayKey] = newLog;
+                    }
+                    return userData.workouts[currentWeek][currentPlanId][currentDayKey];
+                },
+                updateAndRerenderExercise(exIndex, log) {
+                    const exerciseElem = document.querySelectorAll('.exercise')[exIndex];
+                    exerciseElem.querySelector('.sets-grid').parentElement.innerHTML = this.generateSetsHTML(exIndex, log[exIndex]);
+                    window.app.data.saveWorkoutData(log);
+                },
+                changePlan(planId) {
+                    currentPlanId = planId;
+                    const allPlans = {...presets, ...userData.userPlans};
+                    currentDayKey = allPlans[planId].days[0].key; // default to first day
+                    userData.settings.currentPlanId = planId;
+                    window.app.data.saveUserData('settings', userData.settings);
+                    this.render();
+                },
+                changeDay(dayKey) { currentDayKey = dayKey; this.renderWorkout(); }
+            },
+
+            // --- EXERCISES MODULE (API) ---
+            exercises: {
+                debounceTimeout: null,
+                init() {
+                    document.getElementById('searchInput').addEventListener('input', () => this.debouncedSearch());
+                    document.getElementById('targetFilter').addEventListener('change', () => this.search());
+                    document.getElementById('equipmentFilter').addEventListener('change', () => this.search());
+                },
+                debouncedSearch() {
+                    clearTimeout(this.debounceTimeout);
+                    this.debounceTimeout = setTimeout(() => this.search(), 500);
+                },
+                async search() {
+                    const list = document.getElementById('exerciseList');
+                    list.innerHTML = Array(5).fill(this.getSkeletonHTML()).join(''); // Skeletons
+
+                    const name = document.getElementById('searchInput').value.trim();
+                    const target = document.getElementById('targetFilter').value;
+                    const equipment = document.getElementById('equipmentFilter').value;
+
+                    let url = `https://exercisedb-api-rose-seven.vercel.app/exercises`;
+                    const params = new URLSearchParams();
+                    if (name) params.append('name', name);
+                    if (target) params.append('target', target);
+                    if (equipment) params.append('equipment', equipment);
+                    if (params.toString()) url += `?${params.toString()}`;
+
+                    try {
+                        const res = await fetch(url);
+                        if (!res.ok) throw new Error('API request failed');
+                        const data = await res.json();
+                        this.renderResults(data.slice(0, 50)); // Limit results
+                    } catch (error) {
+                        console.error(error);
+                        list.innerHTML = `<p>Error loading exercises. Please try again later.</p>`;
+                    }
+                },
+                renderResults(data) {
+                    const list = document.getElementById('exerciseList');
+                    if (!data || data.length === 0) {
+                        list.innerHTML = `<p>No exercises found.</p>`;
+                        return;
+                    }
+                    list.innerHTML = data.map(ex => `
+                        <div class="exercise-item">
+                            <div class="exercise-item-info">
+                                <strong>${ex.name}</strong>
+                                <span>${ex.target} | ${ex.equipment}</span>
+                            </div>
+                            <button class="secondary add-to-plan-btn" data-exercise-name="${ex.name}">+ Add</button>
+                        </div>
+                    `).join('');
+                },
+                getSkeletonHTML() {
+                    return `
+                        <div class="exercise-item">
+                            <div class="exercise-item-info">
+                                <div class="loading-skeleton skeleton-text" style="width: 60%; height: 1.5em;"></div>
+                                <div class="loading-skeleton skeleton-text" style="width: 40%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+
+            // --- PLANS MODULE (BUILDER) ---
+            plans: {
+                currentEditingPlan: null,
+                init() {
+                    document.getElementById('openPlanBuilder').addEventListener('click', () => this.openBuilder());
+                    document.querySelector('.modal-close').addEventListener('click', () => this.closeBuilder());
+                    document.getElementById('planBuilderForm').addEventListener('submit', (e) => this.savePlan(e));
+                    document.getElementById('addDayBtn').addEventListener('click', () => this.addDay());
+                },
+                openBuilder(planId = null) {
+                    if (planId) this.currentEditingPlan = { ...userData.userPlans[planId] };
+                    else this.currentEditingPlan = { name: '', days: [] };
+                    
+                    document.getElementById('planName').value = this.currentEditingPlan.name;
+                    this.renderDaysInBuilder();
+                    document.getElementById('modalOverlay').style.display = 'block';
+                },
+                closeBuilder() {
+                    document.getElementById('modalOverlay').style.display = 'none';
+                    this.currentEditingPlan = null;
+                },
+                renderPlanList() {
+                    const list = document.getElementById('planList');
+                    list.innerHTML = '';
+                    // Presets
+                    Object.keys(presets).forEach(id => {
+                        list.innerHTML += this.getPlanHTML(presets[id], id);
+                    });
+                    // User plans
+                    Object.values(userData.userPlans).forEach(plan => {
+                         list.innerHTML += this.getPlanHTML(plan, plan.id);
+                    });
+                },
+                getPlanHTML(plan, id) {
+                    return `
+                        <div class="plan-list-item ${plan.isPreset ? 'preset' : ''}">
+                            <div class="plan-info">
+                                <strong>${plan.name}</strong>
+                                <span>${plan.days.length} days</span>
+                            </div>
+                            <div class="gap-10 d-flex">
+                                ${!plan.isPreset ? `<button class="secondary" onclick="window.app.plans.openBuilder('${id}')">Edit</button>` : ''}
+                                ${!plan.isPreset ? `<button class="secondary" style="color:var(--danger)" onclick="window.app.plans.deletePlan('${id}')">Delete</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                },
+                addDay() {
+                    const dayNum = this.currentEditingPlan.days.length + 1;
+                    this.currentEditingPlan.days.push({
+                        key: `day${dayNum}`,
+                        name: `Day ${dayNum}`,
+                        type: 'workout',
+                        exercises: []
+                    });
+                    this.renderDaysInBuilder();
+                },
+                async savePlan(e) {
+                    e.preventDefault();
+                    this.currentEditingPlan.name = document.getElementById('planName').value;
+                    // Update days from form
+                    this.currentEditingPlan.days.forEach((day, index) => {
+                        day.name = document.getElementById(`dayName-${index}`).value;
+                        day.type = document.getElementById(`dayType-${index}`).value;
+                    });
+                    const savedPlanId = await window.app.data.savePlan(this.currentEditingPlan);
+                    if (currentPlanId.startsWith('preset')) currentPlanId = savedPlanId; // Switch if on preset
+                    this.renderPlanList();
+                    this.closeBuilder();
+                },
+                async deletePlan(planId) {
+                    if (confirm('Are you sure you want to delete this plan?')) {
+                        await window.app.data.deletePlan(planId);
+                        if (currentPlanId === planId) {
+                            currentPlanId = 'preset-upper-lower'; // Revert to default
+                            window.app.tracker.changePlan(currentPlanId);
+                        }
+                        this.renderPlanList();
+                    }
+                },
+                renderDaysInBuilder() {
+                    const container = document.getElementById('dayListContainer');
+                    container.innerHTML = this.currentEditingPlan.days.map((day, index) => `
+                        <div class="day-card">
+                            <div class="day-header">
+                                <input id="dayName-${index}" value="${day.name}" style="flex:1; margin-right:10px;">
+                                <select id="dayType-${index}">
+                                    <option value="workout" ${day.type === 'workout' ? 'selected' : ''}>Workout</option>
+                                    <option value="rest" ${day.type === 'rest' ? 'selected' : ''}>Rest</option>
+                                </select>
+                            </div>
+                            </div>
+                    `).join('');
+                }
             }
-            
-            return html;
-        }
+        };
 
-        function updateExerciseSelection(exerciseIndex, value) {
-            workoutData[currentWeek][currentWorkout][exerciseIndex].selectedExercise = value;
-            saveUserData();
-        }
+        // --- INITIALIZE APP ---
+        window.onload = () => window.app.init();
 
-        function updateSetData(exerciseIndex, setIndex, field, value) {
-            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            if (!exerciseData.sets[setIndex]) {
-                exerciseData.sets[setIndex] = { weight: '', reps: '' };
-            }
-            exerciseData.sets[setIndex][field] = value;
-            
-            // Update the input styling to show it's now current data
-            const input = event.target;
-            input.classList.remove('previous-data');
-            input.classList.add('current-data');
-            
-            saveUserData();
-        }
-
-        function updateComments(exerciseIndex, value) {
-            workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
-            saveUserData();
-        }
-
-        function addSet(exerciseIndex) {
-            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            exerciseData.sets.push({ weight: '', reps: '' });
-            
-            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
-            document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
-            saveUserData();
-        }
-
-        function removeSet(exerciseIndex, setIndex) {
-            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            exerciseData.sets.splice(setIndex, 1);
-            
-            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
-            document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
-            saveUserData();
-        }
-
-        function showSaveIndicator() {
-            const indicator = document.getElementById('saveIndicator');
-            indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 2000);
-        }
-
-        // Initialize the app when page loads
-        window.addEventListener('load', () => {
-            initAuth();
-        });
     </script>
+    
+    <div id="authContainer">
+        <div class="card auth-container">
+            <h2 id="authTitle">Welcome to Split Tracker</h2>
+            <button type="button" class="google-btn" id="googleAuthBtn">Continue with Google</button>
+            <div class="divider">or</div>
+            <form id="authForm" class="auth-form">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="primary" id="authBtn">Sign In</button>
+                <div id="authError" class="error"></div>
+            </form>
+            <div class="auth-switch">
+                <span id="authSwitchText">Don't have an account?</span>
+                <button type="button" id="authSwitchBtn">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="appContainer" style="display: none;">
+        <div class="container">
+            <div id="trackerPage" class="page">
+                <div class="header">
+                    <button class="logout-btn">Logout</button>
+                    <h1>💪 Workout Tracker</h1>
+                    <p>Log your session below.</p>
+                </div>
+                <div class="card controls">
+                    <div>
+                        <label for="planSelect">Active Plan</label>
+                        <select id="planSelect" onchange="window.app.tracker.changePlan(this.value)"></select>
+                    </div>
+                    <div>
+                        <label for="daySelect">Workout Day</label>
+                        <select id="daySelect" onchange="window.app.tracker.changeDay(this.value)"></select>
+                    </div>
+                </div>
+                <div id="workoutContent" class="card"></div>
+            </div>
+
+            <div id="plansPage" class="page">
+                <h1 class="page-header">My Plans</h1>
+                <div id="planList"></div>
+                <button id="openPlanBuilder" class="primary mt-20" style="width: 100%;">+ Create New Plan</button>
+            </div>
+
+            <div id="exercisesPage" class="page">
+                <h1 class="page-header">Exercise Catalog</h1>
+                <input type="search" id="searchInput" placeholder="Search exercises...">
+                <div class="filters">
+                    <select id="targetFilter">
+                        <option value="">All Muscles</option>
+                        <option value="chest">Chest</option>
+                        <option value="back">Back</option>
+                        <option value="shoulders">Shoulders</option>
+                        <option value="biceps">Biceps</option>
+                        <option value="triceps">Triceps</option>
+                        <option value="quads">Quads</option>
+                        <option value="hamstrings">Hamstrings</option>
+                    </select>
+                    <select id="equipmentFilter">
+                        <option value="">All Equipment</option>
+                        <option value="barbell">Barbell</option>
+                        <option value="dumbbell">Dumbbell</option>
+                        <option value="cable">Cable</option>
+                        <option value="machine">Machine</option>
+                        <option value="body weight">Bodyweight</option>
+                    </select>
+                </div>
+                <div id="exerciseList" class="card"></div>
+            </div>
+        </div>
+        
+        <div id="modalOverlay" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Plan Builder</h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <form id="planBuilderForm">
+                    <div class="form-group">
+                        <label for="planName">Plan Name</label>
+                        <input type="text" id="planName" placeholder="e.g., Push Pull Legs" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Days</label>
+                        <div id="dayListContainer"></div>
+                        <button type="button" id="addDayBtn" class="secondary mt-20" style="width: 100%;">+ Add Day</button>
+                    </div>
+                    <button type="submit" class="primary" style="width: 100%;">Save Plan</button>
+                </form>
+            </div>
+        </div>
+
+        <nav class="mobile-nav">
+            <button class="nav-btn" data-view="tracker">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                <span>Tracker</span>
+            </button>
+            <button class="nav-btn" data-view="plans">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span>Plans</span>
+            </button>
+            <button class="nav-btn" data-view="exercises">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>Exercises</span>
+            </button>
+        </nav>
+    </div>
 </body>
 </html>
