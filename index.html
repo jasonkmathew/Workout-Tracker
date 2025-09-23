@@ -1672,31 +1672,58 @@
 
         // Authentication functions
         function initAuth() {
+            console.log('Initializing auth...');
+            console.log('Firebase auth:', window.auth);
+            console.log('Firebase functions:', {
+                onAuthStateChanged: typeof window.onAuthStateChanged,
+                signInWithEmailAndPassword: typeof window.signInWithEmailAndPassword,
+                createUserWithEmailAndPassword: typeof window.createUserWithEmailAndPassword,
+                GoogleAuthProvider: typeof window.GoogleAuthProvider,
+                signInWithPopup: typeof window.signInWithPopup
+            });
+
             const authForm = document.getElementById('authForm');
             const authSwitchBtn = document.getElementById('authSwitchBtn');
 
-            authForm.addEventListener('submit', handleAuth);
-            authSwitchBtn.addEventListener('click', toggleAuthMode);
+            if (authForm && authSwitchBtn) {
+                console.log('Auth elements found, adding event listeners');
+                authForm.addEventListener('submit', handleAuth);
+                authSwitchBtn.addEventListener('click', toggleAuthMode);
+            } else {
+                console.error('Auth elements not found:', {authForm, authSwitchBtn});
+            }
 
             // Listen for auth state changes
-            window.onAuthStateChanged(window.auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    showApp();
-                    loadUserData();
-                } else {
-                    currentUser = null;
-                    showAuth();
-                }
-            });
+            if (window.onAuthStateChanged && window.auth) {
+                console.log('Setting up auth state listener');
+                window.onAuthStateChanged(window.auth, (user) => {
+                    console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
+                    if (user) {
+                        currentUser = user;
+                        showApp();
+                        loadUserData();
+                    } else {
+                        currentUser = null;
+                        showAuth();
+                    }
+                });
+            } else {
+                console.error('Firebase auth not available:', {
+                    onAuthStateChanged: window.onAuthStateChanged,
+                    auth: window.auth
+                });
+            }
         }
 
         async function handleGoogleAuth() {
+            console.log('Google auth button clicked');
             const errorDiv = document.getElementById('authError');
-            
+
             try {
                 const provider = new window.GoogleAuthProvider();
+                console.log('Attempting Google sign in...');
                 await window.signInWithPopup(window.auth, provider);
+                console.log('Google sign in successful');
             } catch (error) {
                 console.error('Google auth error:', error);
                 errorDiv.textContent = error.message;
@@ -1725,17 +1752,25 @@
 
         async function handleAuth(e) {
             e.preventDefault();
+            console.log('Auth form submitted', isSignUp ? 'Sign Up' : 'Sign In');
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('authError');
 
+            console.log('Email:', email, 'Password length:', password.length);
+
             try {
                 if (isSignUp) {
+                    console.log('Creating user...');
                     await window.createUserWithEmailAndPassword(window.auth, email, password);
                 } else {
+                    console.log('Signing in...');
                     await window.signInWithEmailAndPassword(window.auth, email, password);
                 }
+                console.log('Auth successful');
             } catch (error) {
+                console.error('Auth error:', error);
                 errorDiv.textContent = error.message;
             }
         }
@@ -2263,8 +2298,13 @@
 
         // Initialize the app when page loads
         window.addEventListener('load', () => {
+            console.log('Page loaded, initializing...');
+            console.log('Document ready state:', document.readyState);
             initAuth();
         });
+
+        // Add additional debugging
+        console.log('Script loaded successfully');
     </script>
 </body>
 </html>
