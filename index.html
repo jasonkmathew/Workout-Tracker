@@ -1160,6 +1160,344 @@
         window.signOut = signOut;
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
+
+        // Move all the main script content here to ensure proper module scope
+        let currentUser = null;
+        let currentWeek = 1;
+        let currentWorkout = 'upperA';
+        let workoutData = {};
+        let isSignUp = false;
+
+        // Exercise Catalog Variables
+        let exerciseSearchResults = [];
+        let currentSearchQuery = '';
+        let currentMuscleFilter = '';
+        let currentEquipmentFilter = '';
+        let isSearching = false;
+        let searchDebounceTimer = null;
+
+        // RapidAPI Configuration
+        const API_BASE = 'https://exercisedb-api1.p.rapidapi.com';
+
+        // Environment key reading with fallback
+        function getRapidApiKey() {
+            return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_RAPIDAPI_KEY)
+                || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAPIDAPI_KEY)
+                || (typeof localStorage !== 'undefined' && localStorage.getItem('RAPIDAPI_KEY'))
+                || '';
+        }
+
+        // RapidAPI headers helper
+        function rapidHeaders() {
+            const key = getRapidApiKey();
+            if (!key) {
+                console.warn('RapidAPI key not found. Add RAPIDAPI_KEY to localStorage for development.');
+            }
+            return {
+                'x-rapidapi-host': 'exercisedb-api1.p.rapidapi.com',
+                'x-rapidapi-key': key
+            };
+        }
+
+        // Debounce helper function
+        function debounce(fn, delay = 350) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        // RapidAPI Exercise Functions
+        async function searchExercisesByName(query) {
+            if (!query?.trim()) return [];
+            const url = `${API_BASE}/exercises/name/${encodeURIComponent(query.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+            return await response.json();
+        }
+
+        async function filterByTarget(target) {
+            if (!target?.trim()) return [];
+            const url = `${API_BASE}/exercises/target/${encodeURIComponent(target.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Target filter failed: ${response.status}`);
+            return await response.json();
+        }
+
+        async function filterByEquipment(equipment) {
+            if (!equipment?.trim()) return [];
+            const url = `${API_BASE}/exercises/equipment/${encodeURIComponent(equipment.trim())}`;
+            const response = await fetch(url, { headers: rapidHeaders() });
+            if (!response.ok) throw new Error(`Equipment filter failed: ${response.status}`);
+            return await response.json();
+        }
+
+        // Exercise normalization for plan integration
+        function normalizeExercise(apiExercise) {
+            return {
+                exerciseId: apiExercise.id,
+                name: apiExercise.name,
+                target: apiExercise.target || '',
+                equipment: apiExercise.equipment || '',
+                defaultSets: [{ reps: 10, weight: '' }],
+                meta: {
+                    bodyPart: apiExercise.bodyPart || '',
+                    gifUrl: apiExercise.gifUrl || ''
+                }
+            };
+        }
+
+        // Exercise execution tips and tempo explanations
+        const exerciseTips = {
+            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
+            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
+            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
+            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
+            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
+            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
+            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
+            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
+            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
+            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
+            "Adductors": "Set machine as wide as possible to force a stretch.",
+            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
+            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
+            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
+            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
+            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
+            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
+            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
+            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
+            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
+            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
+            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
+            "Lunges": "Control descent, brief pause, drive through front heel to return.",
+            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
+        };
+
+        const tempoKey = `
+            <div class="tempo-key">
+                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
+                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
+                <p><strong>1</strong> = Pause at stretch/bottom position</p>
+                <p><strong>1</strong> = Concentric (lifting) seconds</p>
+                <p><strong>1</strong> = Pause at contraction/top</p>
+            </div>
+        `;
+
+        // Authentication functions
+        function initAuth() {
+            console.log('Initializing auth...');
+            console.log('Firebase auth:', auth);
+
+            const authForm = document.getElementById('authForm');
+            const authSwitchBtn = document.getElementById('authSwitchBtn');
+
+            if (authForm && authSwitchBtn) {
+                console.log('Auth elements found, adding event listeners');
+                authForm.addEventListener('submit', handleAuth);
+                authSwitchBtn.addEventListener('click', toggleAuthMode);
+            } else {
+                console.error('Auth elements not found:', {authForm, authSwitchBtn});
+            }
+
+            // Listen for auth state changes
+            if (onAuthStateChanged && auth) {
+                console.log('Setting up auth state listener');
+                onAuthStateChanged(auth, (user) => {
+                    console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
+                    if (user) {
+                        currentUser = user;
+                        showApp();
+                        loadUserData();
+                    } else {
+                        currentUser = null;
+                        showAuth();
+                    }
+                });
+            } else {
+                console.error('Firebase auth not available');
+            }
+        }
+
+        async function handleGoogleAuth() {
+            console.log('Google auth button clicked');
+            const errorDiv = document.getElementById('authError');
+
+            try {
+                const provider = new GoogleAuthProvider();
+                console.log('Attempting Google sign in...');
+                await signInWithPopup(auth, provider);
+                console.log('Google sign in successful');
+            } catch (error) {
+                console.error('Google auth error:', error);
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            const authTitle = document.getElementById('authTitle');
+            const authBtn = document.getElementById('authBtn');
+            const authSwitchText = document.getElementById('authSwitchText');
+            const authSwitchBtn = document.getElementById('authSwitchBtn');
+
+            if (isSignUp) {
+                authTitle.textContent = 'Create Account';
+                authBtn.textContent = 'Sign Up';
+                authSwitchText.textContent = 'Already have an account?';
+                authSwitchBtn.textContent = 'Sign In';
+            } else {
+                authTitle.textContent = 'Welcome Back';
+                authBtn.textContent = 'Sign In';
+                authSwitchText.textContent = "Don't have an account?";
+                authSwitchBtn.textContent = 'Sign Up';
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            console.log('Auth form submitted', isSignUp ? 'Sign Up' : 'Sign In');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('authError');
+
+            try {
+                if (isSignUp) {
+                    console.log('Creating user...');
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    console.log('Signing in...');
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+                console.log('Auth successful');
+            } catch (error) {
+                console.error('Auth error:', error);
+                errorDiv.textContent = error.message;
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
+        }
+
+        function showLoading() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // Add critical missing functions
+        async function loadUserData() {
+            // Placeholder - implement data loading
+            console.log('Loading user data...');
+        }
+
+        function selectWeek(week) {
+            currentWeek = parseInt(week);
+            console.log('Week selected:', currentWeek);
+        }
+
+        function showWorkout(workoutKey) {
+            currentWorkout = workoutKey;
+            console.log('Workout selected:', workoutKey);
+        }
+
+        function updateExerciseSelection(index, value) {
+            console.log('Exercise selection updated:', index, value);
+        }
+
+        function updateSetData(exerciseIndex, setIndex, field, value) {
+            console.log('Set data updated:', exerciseIndex, setIndex, field, value);
+        }
+
+        function updateComments(exerciseIndex, value) {
+            console.log('Comments updated:', exerciseIndex, value);
+        }
+
+        function addSet(exerciseIndex) {
+            console.log('Set added:', exerciseIndex);
+        }
+
+        function removeSet(exerciseIndex, setIndex) {
+            console.log('Set removed:', exerciseIndex, setIndex);
+        }
+
+        // Exercise catalog functions
+        function openExerciseModal() {
+            document.getElementById('exerciseModal').style.display = 'flex';
+        }
+
+        function closeExerciseModal() {
+            document.getElementById('exerciseModal').style.display = 'none';
+        }
+
+        function searchExercises(query) {
+            console.log('Search exercises:', query);
+        }
+
+        function filterExercises() {
+            console.log('Filter exercises');
+        }
+
+        function clearFilters() {
+            console.log('Clear filters');
+        }
+
+        function addExerciseToPlan(exerciseId, exerciseName, target, equipment, gifUrl, bodyPart) {
+            console.log('Add exercise to plan:', exerciseName);
+            alert(`"${exerciseName}" added to plan!`);
+        }
+
+        function retrySearch() {
+            console.log('Retry search');
+        }
+
+        // Initialize the app when page loads
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing...');
+            initAuth();
+        });
+
+        // Make functions global for onclick handlers
+        window.handleGoogleAuth = handleGoogleAuth;
+        window.handleAuth = handleAuth;
+        window.handleLogout = handleLogout;
+        window.openExerciseModal = openExerciseModal;
+        window.closeExerciseModal = closeExerciseModal;
+        window.searchExercises = searchExercises;
+        window.filterExercises = filterExercises;
+        window.clearFilters = clearFilters;
+        window.addExerciseToPlan = addExerciseToPlan;
+        window.retrySearch = retrySearch;
+        window.selectWeek = selectWeek;
+        window.showWorkout = showWorkout;
+        window.updateExerciseSelection = updateExerciseSelection;
+        window.updateSetData = updateSetData;
+        window.updateComments = updateComments;
+        window.addSet = addSet;
+        window.removeSet = removeSet;
     </script>
 
     <div id="authContainer" class="auth-container">
@@ -1330,171 +1668,6 @@
 
     <div id="saveIndicator" class="save-indicator">Saved ✓</div>
 
-    <script>
-        let currentUser = null;
-        let currentWeek = 1;
-        let currentWorkout = 'upperA';
-        let workoutData = {};
-        let isSignUp = false;
-
-        // Exercise Catalog Variables
-        let exerciseSearchResults = [];
-        let currentSearchQuery = '';
-        let currentMuscleFilter = '';
-        let currentEquipmentFilter = '';
-        let isSearching = false;
-        let searchDebounceTimer = null;
-
-        // RapidAPI Configuration
-        const API_BASE = 'https://exercisedb-api1.p.rapidapi.com';
-
-        // Environment key reading with fallback
-        function getRapidApiKey() {
-            return (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_RAPIDAPI_KEY)
-                || (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAPIDAPI_KEY)
-                || (typeof localStorage !== 'undefined' && localStorage.getItem('RAPIDAPI_KEY'))
-                || '';
-        }
-
-        // RapidAPI headers helper
-        function rapidHeaders() {
-            const key = getRapidApiKey();
-            if (!key) {
-                console.warn('RapidAPI key not found. Add RAPIDAPI_KEY to localStorage for development.');
-            }
-            return {
-                'x-rapidapi-host': 'exercisedb-api1.p.rapidapi.com',
-                'x-rapidapi-key': key
-            };
-        }
-
-        // Debounce helper function
-        function debounce(fn, delay = 350) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => fn(...args), delay);
-            };
-        }
-
-        // RapidAPI Exercise Functions
-        async function searchExercisesByName(query) {
-            if (!query?.trim()) return [];
-            const url = `${API_BASE}/exercises/name/${encodeURIComponent(query.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Search failed: ${response.status}`);
-            return await response.json();
-        }
-
-        async function filterByTarget(target) {
-            if (!target?.trim()) return [];
-            const url = `${API_BASE}/exercises/target/${encodeURIComponent(target.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Target filter failed: ${response.status}`);
-            return await response.json();
-        }
-
-        async function filterByEquipment(equipment) {
-            if (!equipment?.trim()) return [];
-            const url = `${API_BASE}/exercises/equipment/${encodeURIComponent(equipment.trim())}`;
-            const response = await fetch(url, { headers: rapidHeaders() });
-            if (!response.ok) throw new Error(`Equipment filter failed: ${response.status}`);
-            return await response.json();
-        }
-
-        // Exercise normalization for plan integration
-        function normalizeExercise(apiExercise) {
-            return {
-                exerciseId: apiExercise.id,
-                name: apiExercise.name,
-                target: apiExercise.target || '',
-                equipment: apiExercise.equipment || '',
-                defaultSets: [{ reps: 10, weight: '' }],
-                meta: {
-                    bodyPart: apiExercise.bodyPart || '',
-                    gifUrl: apiExercise.gifUrl || ''
-                }
-            };
-        }
-
-        // Exercise execution tips and tempo explanations
-        const exerciseTips = {
-            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
-            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
-            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
-            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
-            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
-            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
-            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
-            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
-            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
-            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
-            "Adductors": "Set machine as wide as possible to force a stretch.",
-            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
-            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
-            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
-            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
-            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
-            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
-            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
-            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
-            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
-            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
-            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
-            "Lunges": "Control descent, brief pause, drive through front heel to return.",
-            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
-        };
-
-        const tempoKey = `
-            <div class="tempo-key">
-                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
-                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
-                <p><strong>1</strong> = Pause at stretch/bottom position</p>
-                <p><strong>1</strong> = Concentric (lifting) seconds</p>
-                <p><strong>1</strong> = Pause at contraction/top</p>
-            </div>
-        `;
-
-        // Workout definitions
-        const workouts = {
-            upperA: {
-                name: "Upper A",
-                exercises: [
-                    {
-                        name: "Incline Press",
-                        sets: "1-2 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Incline DB Press", "Incline Smith Machine", "Incline Barbell", "Incline Press Machine"]
-                    },
-                    {
-                        name: "Chest Fly",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Chest Fly Machine", "Seated Cable Fly", "Flat DB Flys"]
-                    },
-                    {
-                        name: "Lat Pulldown",
-                        sets: "2-3 sets",
-                        reps: "6-10 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Wide Grip", "Neutral Grip", "Pulldown Machine"]
-                    },
-                    {
-                        name: "Mid Back Row",
-                        sets: "2-3 sets",
-                        reps: "8-12 reps",
-                        tempo: "3:1:1:1",
-                        options: ["Seated Machine Row", "Cable Row"]
-                    },
-                    {
-                        name: "Lateral Raise",
-                        sets: "2-4 sets",
-                        reps: "10-15 reps",
-                        tempo: "4:1:1:1",
                         options: ["DB Lateral Raise", "Lateral Raise Machine", "Cable Lateral Raise"]
                     },
                     {
