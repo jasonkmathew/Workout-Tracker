@@ -150,6 +150,15 @@
             color: var(--muted);
         }
 
+        .auth-form input:invalid {
+            box-shadow: none;
+            border-color: var(--border);
+        }
+
+        .auth-form input:required {
+            box-shadow: none;
+        }
+
         .auth-btn {
             background: var(--accent);
             color: white;
@@ -620,6 +629,373 @@
             opacity: 1;
         }
 
+        /* =================================
+           EXERCISE CATALOG - Modal & Components
+           ================================= */
+        .exercise-catalog-btn-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .exercise-catalog-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 44px;
+        }
+
+        .exercise-catalog-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+        }
+
+        .exercise-catalog-btn:active {
+            transform: translateY(0);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px var(--shadow-lg);
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .exercise-search-section {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 50px 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .search-box input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            bottom: 4px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn:hover {
+            color: var(--accent);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .filter-group select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .clear-filters-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+
+        .clear-filters-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-focus);
+            color: var(--text);
+        }
+
+        .exercise-results {
+            min-height: 300px;
+        }
+
+        .exercise-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            color: var(--muted);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .exercise-error {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--error);
+        }
+
+        .exercise-error p {
+            margin-bottom: 16px;
+        }
+
+        .retry-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .retry-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .exercise-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--muted);
+        }
+
+        .exercise-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--shadow);
+            border-color: var(--border-focus);
+        }
+
+        .exercise-card-image {
+            width: 100%;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exercise-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .exercise-card-image .placeholder {
+            color: var(--muted);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .exercise-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .exercise-card-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .exercise-card-meta span {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: capitalize;
+        }
+
+        .add-to-plan-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .add-to-plan-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .add-to-plan-btn:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 12px;
@@ -672,6 +1048,40 @@
                 top: 16px;
                 right: 16px;
                 padding: 10px 16px;
+            }
+
+            .modal {
+                padding: 10px;
+            }
+
+            .modal-content {
+                max-height: 95vh;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .clear-filters-btn {
+                justify-self: start;
+            }
+
+            .exercise-list {
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
         }
 
@@ -797,8 +1207,98 @@
             </div>
         </div>
 
+        <div class="exercise-catalog-btn-container">
+            <button class="exercise-catalog-btn" onclick="openExerciseModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Browse Exercise Catalog
+            </button>
+        </div>
+
         <div id="workoutContent" class="workout-content">
             <!-- Content will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Exercise Catalog Modal -->
+    <div id="exerciseModal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeExerciseModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercise Catalog</h2>
+                <button class="modal-close" onclick="closeExerciseModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Search and Filters -->
+                <div class="exercise-search-section">
+                    <div class="search-box">
+                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." onchange="searchExercises(this.value)">
+                        <button class="search-btn" onclick="searchExercises(document.getElementById('exerciseSearch').value)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="muscleFilter">Muscle Group</label>
+                            <select id="muscleFilter" onchange="filterExercises()">
+                                <option value="">All Muscles</option>
+                                <option value="abdominals">Abdominals</option>
+                                <option value="biceps">Biceps</option>
+                                <option value="calves">Calves</option>
+                                <option value="chest">Chest</option>
+                                <option value="delts">Delts</option>
+                                <option value="forearms">Forearms</option>
+                                <option value="glutes">Glutes</option>
+                                <option value="hamstrings">Hamstrings</option>
+                                <option value="lats">Lats</option>
+                                <option value="quads">Quads</option>
+                                <option value="traps">Traps</option>
+                                <option value="triceps">Triceps</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="equipmentFilter">Equipment</label>
+                            <select id="equipmentFilter" onchange="filterExercises()">
+                                <option value="">All Equipment</option>
+                                <option value="barbell">Barbell</option>
+                                <option value="dumbbell">Dumbbell</option>
+                                <option value="cable">Cable</option>
+                                <option value="machine">Machine</option>
+                                <option value="bodyweight">Bodyweight</option>
+                                <option value="kettlebell">Kettlebell</option>
+                                <option value="resistance band">Resistance Band</option>
+                            </select>
+                        </div>
+
+                        <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="exercise-results">
+                    <div id="exerciseLoading" class="exercise-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Searching exercises...</p>
+                    </div>
+
+                    <div id="exerciseError" class="exercise-error" style="display: none;">
+                        <p>Failed to load exercises. Please try again.</p>
+                        <button class="retry-btn" onclick="retrySearch()">Retry</button>
+                    </div>
+
+                    <div id="exerciseList" class="exercise-list">
+                        <div class="no-results">
+                            <p>Search or filter exercises to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -810,6 +1310,13 @@
         let currentWorkout = 'upperA';
         let workoutData = {};
         let isSignUp = false;
+
+        // Exercise Catalog Variables
+        let exerciseSearchResults = [];
+        let currentSearchQuery = '';
+        let currentMuscleFilter = '';
+        let currentEquipmentFilter = '';
+        let isSearching = false;
 
         // Exercise execution tips and tempo explanations
         const exerciseTips = {
@@ -1412,6 +1919,217 @@
                 indicator.classList.remove('show');
             }, 2000);
         }
+
+        // ========================================
+        // EXERCISE CATALOG FUNCTIONALITY
+        // ========================================
+
+        function openExerciseModal() {
+            document.getElementById('exerciseModal').style.display = 'flex';
+            clearSearch();
+        }
+
+        function closeExerciseModal() {
+            document.getElementById('exerciseModal').style.display = 'none';
+            clearSearch();
+        }
+
+        function clearSearch() {
+            document.getElementById('exerciseSearch').value = '';
+            document.getElementById('muscleFilter').value = '';
+            document.getElementById('equipmentFilter').value = '';
+            currentSearchQuery = '';
+            currentMuscleFilter = '';
+            currentEquipmentFilter = '';
+            showNoResults();
+        }
+
+        function clearFilters() {
+            document.getElementById('muscleFilter').value = '';
+            document.getElementById('equipmentFilter').value = '';
+            currentMuscleFilter = '';
+            currentEquipmentFilter = '';
+            filterExercises();
+        }
+
+        function showLoading() {
+            document.getElementById('exerciseLoading').style.display = 'flex';
+            document.getElementById('exerciseError').style.display = 'none';
+            document.getElementById('exerciseList').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('exerciseLoading').style.display = 'none';
+            document.getElementById('exerciseList').style.display = 'grid';
+        }
+
+        function showError() {
+            document.getElementById('exerciseLoading').style.display = 'none';
+            document.getElementById('exerciseError').style.display = 'block';
+            document.getElementById('exerciseList').style.display = 'none';
+        }
+
+        function showNoResults() {
+            hideLoading();
+            document.getElementById('exerciseList').innerHTML = `
+                <div class="no-results">
+                    <p>Search or filter exercises to get started</p>
+                </div>
+            `;
+        }
+
+        async function searchExercises(query) {
+            if (!query || query.trim().length < 2) {
+                showNoResults();
+                return;
+            }
+
+            currentSearchQuery = query.trim();
+            isSearching = true;
+            showLoading();
+
+            try {
+                const url = `https://exercisedb-api-rose-seven.vercel.app/exercises?name=${encodeURIComponent(currentSearchQuery)}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const exercises = await response.json();
+                exerciseSearchResults = exercises || [];
+                displayExercises(exerciseSearchResults);
+                hideLoading();
+            } catch (error) {
+                console.error('Search error:', error);
+                showError();
+            } finally {
+                isSearching = false;
+            }
+        }
+
+        async function filterExercises() {
+            const muscleSelect = document.getElementById('muscleFilter');
+            const equipmentSelect = document.getElementById('equipmentFilter');
+
+            currentMuscleFilter = muscleSelect.value;
+            currentEquipmentFilter = equipmentSelect.value;
+
+            // If no filters and no search query, show no results
+            if (!currentMuscleFilter && !currentEquipmentFilter && !currentSearchQuery) {
+                showNoResults();
+                return;
+            }
+
+            isSearching = true;
+            showLoading();
+
+            try {
+                let url = 'https://exercisedb-api-rose-seven.vercel.app/exercises?';
+                const params = [];
+
+                if (currentSearchQuery) {
+                    params.push(`name=${encodeURIComponent(currentSearchQuery)}`);
+                }
+                if (currentMuscleFilter) {
+                    params.push(`target=${encodeURIComponent(currentMuscleFilter)}`);
+                }
+                if (currentEquipmentFilter) {
+                    params.push(`equipment=${encodeURIComponent(currentEquipmentFilter)}`);
+                }
+
+                url += params.join('&');
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const exercises = await response.json();
+                exerciseSearchResults = exercises || [];
+                displayExercises(exerciseSearchResults);
+                hideLoading();
+            } catch (error) {
+                console.error('Filter error:', error);
+                showError();
+            } finally {
+                isSearching = false;
+            }
+        }
+
+        function displayExercises(exercises) {
+            const container = document.getElementById('exerciseList');
+
+            if (!exercises || exercises.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <p>No exercises found matching your criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const exerciseCards = exercises.map(exercise => createExerciseCard(exercise)).join('');
+            container.innerHTML = exerciseCards;
+        }
+
+        function createExerciseCard(exercise) {
+            const { id, name, target, equipment, gifUrl } = exercise;
+
+            return `
+                <div class="exercise-card">
+                    <div class="exercise-card-image">
+                        ${gifUrl ?
+                            `<img src="${gifUrl}" alt="${name}" onerror="this.parentElement.innerHTML='<div class=\\"placeholder\\">No image available</div>'">` :
+                            '<div class="placeholder">No image available</div>'
+                        }
+                    </div>
+                    <div class="exercise-card-title">${name}</div>
+                    <div class="exercise-card-meta">
+                        ${target ? `<span>🎯 ${target}</span>` : ''}
+                        ${equipment ? `<span>⚡ ${equipment}</span>` : ''}
+                    </div>
+                    <button class="add-to-plan-btn" onclick="addExerciseToPlan('${id}', '${name.replace(/'/g, "\\'")}', '${target || ''}', '${equipment || ''}')">
+                        Add to Plan
+                    </button>
+                </div>
+            `;
+        }
+
+        function addExerciseToPlan(exerciseId, exerciseName, target, equipment) {
+            // Show a success message
+            showSaveIndicator();
+
+            // For now, just show an alert. In a full implementation, you would:
+            // 1. Add the exercise to the current workout plan
+            // 2. Update the workout data structure
+            // 3. Save to Firebase
+            // 4. Refresh the workout display
+
+            alert(`"${exerciseName}" added to your plan! (Demo - not actually added yet)`);
+
+            // Optionally close the modal after adding
+            // closeExerciseModal();
+        }
+
+        function retrySearch() {
+            if (currentSearchQuery) {
+                searchExercises(currentSearchQuery);
+            } else if (currentMuscleFilter || currentEquipmentFilter) {
+                filterExercises();
+            }
+        }
+
+        // Add keyboard support for search
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('exerciseModal');
+                if (modal.style.display === 'flex') {
+                    closeExerciseModal();
+                }
+            }
+        });
 
         // Initialize the app when page loads
         window.addEventListener('load', () => {
