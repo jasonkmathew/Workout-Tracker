@@ -1039,28 +1039,7 @@
             document.getElementById('appContainer').style.display = 'none';
         }
 
-        // Data functions
-        function initializeWorkoutData() {
-            workoutData = {};
-            customWorkouts = {};
-            for (let week = 1; week <= 12; week++) {
-                workoutData[week] = {};
-                customWorkouts[week] = {};
-                for (let workoutKey in workouts) {
-                    workoutData[week][workoutKey] = {};
-                    workouts[workoutKey].exercises.forEach((exercise, index) => {
-                        workoutData[week][workoutKey][index] = {
-                            selectedExercise: exercise.options[0],
-                            sets: [{ weight: '', reps: '' }, { weight: '', reps: '' }],
-                            comments: ''
-                        };
-                    });
-                }
-                for (let day = 1; day <= 7; day++) {
-                    customWorkouts[week][day] = []; // Each day starts with an empty array of exercises
-                }
-            }
-        }
+
 
         function initializeWorkoutData() {
             workoutData = {};
@@ -1109,7 +1088,8 @@
             const filteredExercises = allExercises.filter(exercise => 
                 exercise.name.toLowerCase().includes(searchInput)
             );
-        function addExerciseToCustomPlan(exercise) {
+            renderExerciseCatalog(filteredExercises);
+        }
             const currentCustomDay = customWorkouts[currentWeek][currentDay];
             currentCustomDay.push({
                 name: exercise.name,
