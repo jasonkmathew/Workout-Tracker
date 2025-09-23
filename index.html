@@ -227,6 +227,11 @@
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
             border-radius: 8px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
         }
 
         .header {
@@ -922,6 +927,7 @@
         .no-results ol {
             max-width: 500px;
             margin: 16px auto;
+            text-align: left;
         }
 
         .no-results ol li {
@@ -1161,7 +1167,7 @@
         window.GoogleAuthProvider = GoogleAuthProvider;
         window.signInWithPopup = signInWithPopup;
 
-        // Move all the main script content here to ensure proper module scope
+        // App state
         let currentUser = null;
         let currentWeek = 1;
         let currentWorkout = 'upperA';
@@ -1174,7 +1180,6 @@
         let currentMuscleFilter = '';
         let currentEquipmentFilter = '';
         let isSearching = false;
-        let searchDebounceTimer = null;
 
         // RapidAPI Configuration
         const API_BASE = 'https://exercisedb-api1.p.rapidapi.com';
@@ -1248,426 +1253,44 @@
             };
         }
 
-        // Exercise execution tips and tempo explanations
-        const exerciseTips = {
-            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
-            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
-            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
-            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
-            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
-            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
-            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
-            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
-            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
-            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
-            "Adductors": "Set machine as wide as possible to force a stretch.",
-            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
-            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
-            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
-            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
-            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
-            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
-            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
-            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
-            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
-            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
-            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
-            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
-            "Lunges": "Control descent, brief pause, drive through front heel to return.",
-            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
-        };
-
-        const tempoKey = `
-            <div class="tempo-key">
-                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
-                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
-                <p><strong>1</strong> = Pause at stretch/bottom position</p>
-                <p><strong>1</strong> = Concentric (lifting) seconds</p>
-                <p><strong>1</strong> = Pause at contraction/top</p>
-            </div>
-        `;
-
-        // Authentication functions
-        function initAuth() {
-            console.log('Initializing auth...');
-            console.log('Firebase auth:', auth);
-
-            const authForm = document.getElementById('authForm');
-            const authSwitchBtn = document.getElementById('authSwitchBtn');
-
-            if (authForm && authSwitchBtn) {
-                console.log('Auth elements found, adding event listeners');
-                authForm.addEventListener('submit', handleAuth);
-                authSwitchBtn.addEventListener('click', toggleAuthMode);
-            } else {
-                console.error('Auth elements not found:', {authForm, authSwitchBtn});
-            }
-
-            // Listen for auth state changes
-            if (onAuthStateChanged && auth) {
-                console.log('Setting up auth state listener');
-                onAuthStateChanged(auth, (user) => {
-                    console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
-                    if (user) {
-                        currentUser = user;
-                        showApp();
-                        loadUserData();
-                    } else {
-                        currentUser = null;
-                        showAuth();
-                    }
-                });
-            } else {
-                console.error('Firebase auth not available');
-            }
-        }
-
-        async function handleGoogleAuth() {
-            console.log('Google auth button clicked');
-            const errorDiv = document.getElementById('authError');
-
-            try {
-                const provider = new GoogleAuthProvider();
-                console.log('Attempting Google sign in...');
-                await signInWithPopup(auth, provider);
-                console.log('Google sign in successful');
-            } catch (error) {
-                console.error('Google auth error:', error);
-                errorDiv.textContent = error.message;
-            }
-        }
-
-        function toggleAuthMode() {
-            isSignUp = !isSignUp;
-            const authTitle = document.getElementById('authTitle');
-            const authBtn = document.getElementById('authBtn');
-            const authSwitchText = document.getElementById('authSwitchText');
-            const authSwitchBtn = document.getElementById('authSwitchBtn');
-
-            if (isSignUp) {
-                authTitle.textContent = 'Create Account';
-                authBtn.textContent = 'Sign Up';
-                authSwitchText.textContent = 'Already have an account?';
-                authSwitchBtn.textContent = 'Sign In';
-            } else {
-                authTitle.textContent = 'Welcome Back';
-                authBtn.textContent = 'Sign In';
-                authSwitchText.textContent = "Don't have an account?";
-                authSwitchBtn.textContent = 'Sign Up';
-            }
-        }
-
-        async function handleAuth(e) {
-            e.preventDefault();
-            console.log('Auth form submitted', isSignUp ? 'Sign Up' : 'Sign In');
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('authError');
-
-            try {
-                if (isSignUp) {
-                    console.log('Creating user...');
-                    await createUserWithEmailAndPassword(auth, email, password);
-                } else {
-                    console.log('Signing in...');
-                    await signInWithEmailAndPassword(auth, email, password);
-                }
-                console.log('Auth successful');
-            } catch (error) {
-                console.error('Auth error:', error);
-                errorDiv.textContent = error.message;
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
-        }
-
-        function showAuth() {
-            document.getElementById('authContainer').style.display = 'block';
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'none';
-        }
-
-        function showApp() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'block';
-            document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
-        }
-
-        function showLoading() {
-            document.getElementById('authContainer').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'block';
-            document.getElementById('appContainer').style.display = 'none';
-        }
-
-        // Add critical missing functions
-        async function loadUserData() {
-            // Placeholder - implement data loading
-            console.log('Loading user data...');
-        }
-
-        function selectWeek(week) {
-            currentWeek = parseInt(week);
-            console.log('Week selected:', currentWeek);
-        }
-
-        function showWorkout(workoutKey) {
-            currentWorkout = workoutKey;
-            console.log('Workout selected:', workoutKey);
-        }
-
-        function updateExerciseSelection(index, value) {
-            console.log('Exercise selection updated:', index, value);
-        }
-
-        function updateSetData(exerciseIndex, setIndex, field, value) {
-            console.log('Set data updated:', exerciseIndex, setIndex, field, value);
-        }
-
-        function updateComments(exerciseIndex, value) {
-            console.log('Comments updated:', exerciseIndex, value);
-        }
-
-        function addSet(exerciseIndex) {
-            console.log('Set added:', exerciseIndex);
-        }
-
-        function removeSet(exerciseIndex, setIndex) {
-            console.log('Set removed:', exerciseIndex, setIndex);
-        }
-
-        // Exercise catalog functions
-        function openExerciseModal() {
-            document.getElementById('exerciseModal').style.display = 'flex';
-        }
-
-        function closeExerciseModal() {
-            document.getElementById('exerciseModal').style.display = 'none';
-        }
-
-        function searchExercises(query) {
-            console.log('Search exercises:', query);
-        }
-
-        function filterExercises() {
-            console.log('Filter exercises');
-        }
-
-        function clearFilters() {
-            console.log('Clear filters');
-        }
-
-        function addExerciseToPlan(exerciseId, exerciseName, target, equipment, gifUrl, bodyPart) {
-            console.log('Add exercise to plan:', exerciseName);
-            alert(`"${exerciseName}" added to plan!`);
-        }
-
-        function retrySearch() {
-            console.log('Retry search');
-        }
-
-        // Initialize the app when page loads
-        window.addEventListener('load', () => {
-            console.log('Page loaded, initializing...');
-            initAuth();
-        });
-
-        // Make functions global for onclick handlers
-        window.handleGoogleAuth = handleGoogleAuth;
-        window.handleAuth = handleAuth;
-        window.handleLogout = handleLogout;
-        window.openExerciseModal = openExerciseModal;
-        window.closeExerciseModal = closeExerciseModal;
-        window.searchExercises = searchExercises;
-        window.filterExercises = filterExercises;
-        window.clearFilters = clearFilters;
-        window.addExerciseToPlan = addExerciseToPlan;
-        window.retrySearch = retrySearch;
-        window.selectWeek = selectWeek;
-        window.showWorkout = showWorkout;
-        window.updateExerciseSelection = updateExerciseSelection;
-        window.updateSetData = updateSetData;
-        window.updateComments = updateComments;
-        window.addSet = addSet;
-        window.removeSet = removeSet;
-    </script>
-
-    <div id="authContainer" class="auth-container">
-        <h2 id="authTitle">Welcome to Split Tracker</h2>
-        
-        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-        </button>
-        
-        <div class="divider">or</div>
-        
-        <form id="authForm" class="auth-form">
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
-            <div id="authError" class="error"></div>
-        </form>
-        <div class="auth-switch">
-            <span id="authSwitchText">Don't have an account?</span>
-            <button type="button" id="authSwitchBtn">Sign Up</button>
-        </div>
-    </div>
-
-    <div id="loadingScreen" class="loading" style="display: none;">
-        <h2>Loading your workouts...</h2>
-    </div>
-
-    <div id="appContainer" class="container" style="display: none;">
-        <div class="header">
-            <h1>💪 Split Workout Tracker</h1>
-            <p>2 on • 1 off • 2 on • 1-2 off</p>
-            <div class="user-info" id="userInfo"></div>
-            <button class="logout-btn" onclick="handleLogout()">Logout</button>
-        </div>
-
-        <div class="controls">
-            <div class="week-selector">
-                <label for="weekSelect">Week</label>
-                <select id="weekSelect" onchange="selectWeek(this.value)">
-                    <option value="1">Week 1</option>
-                    <option value="2">Week 2</option>
-                    <option value="3">Week 3</option>
-                    <option value="4">Week 4</option>
-                    <option value="5">Week 5</option>
-                    <option value="6">Week 6</option>
-                    <option value="7">Week 7</option>
-                    <option value="8">Week 8</option>
-                    <option value="9">Week 9</option>
-                    <option value="10">Week 10</option>
-                    <option value="11">Week 11</option>
-                    <option value="12">Week 12</option>
-                </select>
-            </div>
-
-            <div class="workout-selector">
-                <label for="workoutSelect">Workout</label>
-                <select id="workoutSelect" onchange="showWorkout(this.value)">
-                    <option value="upperA">Upper A</option>
-                    <option value="lowerA">Lower A</option>
-                    <option value="rest1">Rest Day</option>
-                    <option value="upperB">Upper B</option>
-                    <option value="lowerB">Lower B</option>
-                    <option value="rest2">Rest Day</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="exercise-catalog-btn-container">
-            <button class="exercise-catalog-btn" onclick="openExerciseModal()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                Browse Exercise Catalog
-            </button>
-        </div>
-
-        <div id="workoutContent" class="workout-content">
-            <!-- Content will be dynamically generated -->
-        </div>
-    </div>
-
-    <!-- Exercise Catalog Modal -->
-    <div id="exerciseModal" class="modal" style="display: none;">
-        <div class="modal-backdrop" onclick="closeExerciseModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercise Catalog</h2>
-                <button class="modal-close" onclick="closeExerciseModal()">×</button>
-            </div>
-
-            <div class="modal-body">
-                <!-- Search and Filters -->
-                <div class="exercise-search-section">
-                    <div class="search-box">
-                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." oninput="searchExercises(this.value)">
-                        <button class="search-btn" onclick="searchExercises(document.getElementById('exerciseSearch').value)">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label for="muscleFilter">Muscle Group</label>
-                            <select id="muscleFilter" onchange="filterExercises()">
-                                <option value="">All Muscles</option>
-                                <option value="abdominals">Abdominals</option>
-                                <option value="biceps">Biceps</option>
-                                <option value="calves">Calves</option>
-                                <option value="chest">Chest</option>
-                                <option value="delts">Delts</option>
-                                <option value="forearms">Forearms</option>
-                                <option value="glutes">Glutes</option>
-                                <option value="hamstrings">Hamstrings</option>
-                                <option value="lats">Lats</option>
-                                <option value="quads">Quads</option>
-                                <option value="traps">Traps</option>
-                                <option value="triceps">Triceps</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-group">
-                            <label for="equipmentFilter">Equipment</label>
-                            <select id="equipmentFilter" onchange="filterExercises()">
-                                <option value="">All Equipment</option>
-                                <option value="barbell">Barbell</option>
-                                <option value="dumbbell">Dumbbell</option>
-                                <option value="cable">Cable</option>
-                                <option value="machine">Machine</option>
-                                <option value="bodyweight">Bodyweight</option>
-                                <option value="kettlebell">Kettlebell</option>
-                                <option value="resistance band">Resistance Band</option>
-                            </select>
-                        </div>
-
-                        <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
-                    </div>
-                </div>
-
-                <!-- Results -->
-                <div class="exercise-results">
-                    <div id="exerciseLoading" class="exercise-loading" style="display: none;">
-                        <div class="loading-spinner"></div>
-                        <p>Searching exercises...</p>
-                    </div>
-
-                    <div id="exerciseError" class="exercise-error" style="display: none;">
-                        <p>Failed to load exercises. Please try again.</p>
-                        <button class="retry-btn" onclick="retrySearch()">Retry</button>
-                    </div>
-
-                    <div id="exerciseList" class="exercise-list">
-                        <div class="no-results">
-                            <p>Search or filter exercises to get started</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
-
+        // Workout data structure
+        const workouts = {
+            upperA: {
+                name: "Upper A",
+                exercises: [
+                    {
+                        name: "Incline Press",
+                        sets: "2-3 sets",
+                        reps: "6-10 reps",
+                        tempo: "3:1:1:1",
+                        options: ["Incline DB Press", "Incline Barbell", "Smith Machine"]
+                    },
+                    {
+                        name: "Chest Fly",
+                        sets: "2-3 sets", 
+                        reps: "10-15 reps",
+                        tempo: "3:2:1:2",
+                        options: ["Cable Fly", "Pec Deck", "DB Fly"]
+                    },
+                    {
+                        name: "Lat Pulldown",
+                        sets: "2-3 sets",
+                        reps: "8-12 reps", 
+                        tempo: "3:1:1:1",
+                        options: ["Wide Grip", "Close Grip", "Underhand"]
+                    },
+                    {
+                        name: "Mid Back Row",
+                        sets: "2-3 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:1:1:2", 
+                        options: ["Seated Row", "Machine Row", "T-Bar Row"]
+                    },
+                    {
+                        name: "Lateral Raise",
+                        sets: "2-4 sets",
+                        reps: "10-15 reps",
+                        tempo: "3:1:1:1",
                         options: ["DB Lateral Raise", "Lateral Raise Machine", "Cable Lateral Raise"]
                     },
                     {
@@ -1843,34 +1466,59 @@
             }
         };
 
+        // Exercise execution tips and tempo explanations
+        const exerciseTips = {
+            "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
+            "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
+            "Lat Pulldown": "Push elbows forward, think 'stabbing the floor'. Don't arch back. Pull DOWN, not back.",
+            "Mid Back Row": "Stay upright, don't arch. Focus on shoulder extension, not retraction.",
+            "Lateral Raise": "Think pushing out, not up/down. Keep arms slightly in front of you.",
+            "Tricep Pushdown": "Control the eccentric, pause at stretch, squeeze at contraction.",
+            "DB Curl": "Can rotate from neutral to supination through concentric for bicep focus.",
+            "Leg Curl": "Lean forward from hips to lengthen hamstring. Sit back if reaching failure for more reps.",
+            "Leg Extension": "Can lean back & scoot butt up for more rectus femoris activation.",
+            "Squat": "Use heel elevation. Stay upright, drive knees forward. Brief pause at bottom.",
+            "Adductors": "Set machine as wide as possible to force a stretch.",
+            "Calf Raise": "Slightly bend knee on concentric. Hold 60sec loaded stretch after final set.",
+            "Abs": "Focus on spinal flexion, not hip movement. Contract core through full range.",
+            "Pullover": "Still a pulldown, not row. Stab floor with elbow, focus on scapular depression.",
+            "Upper Back Row": "Keep elbows high/abducted. Initiate with shoulder extension into full retraction.",
+            "Rear Delt Fly": "Start with full protraction. Think pushing outwards, don't turn into row.",
+            "Shoulder Press": "Keep spine neutral, core engaged. Don't arch back or lift chest.",
+            "Chest Press (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Lower Chest": "Drive biceps into chest, try to touch inner elbows at peak contraction.",
+            "Preacher Curl": "Control eccentric, pause at stretch, hold peak contraction.",
+            "Tricep Extension": "Focus on keeping upper arms still, control through full range.",
+            "Lying Leg Curl": "Press hips into pad, keep spine neutral. Don't let pad leave contact.",
+            "Leg Extension (RPS)": "Rest Pause: to failure, rest 20-30 breaths, repeat 3x total rounds.",
+            "Romanian Deadlift": "Drive glutes back, knees over ankles. Think driving back then driving in.",
+            "Lunges": "Control descent, brief pause, drive through front heel to return.",
+            "Leg Raises": "Move into lumbar flexion to contract core, not just hip flexion."
+        };
+
+        const tempoKey = `
+            <div class="tempo-key">
+                <h4>Tempo Guide (e.g., 3:1:1:1)</h4>
+                <p><strong>3</strong> = Eccentric (lowering) seconds</p>
+                <p><strong>1</strong> = Pause at stretch/bottom position</p>
+                <p><strong>1</strong> = Concentric (lifting) seconds</p>
+                <p><strong>1</strong> = Pause at contraction/top</p>
+            </div>
+        `;
+
         // Authentication functions
         function initAuth() {
-            console.log('Initializing auth...');
-            console.log('Firebase auth:', window.auth);
-            console.log('Firebase functions:', {
-                onAuthStateChanged: typeof window.onAuthStateChanged,
-                signInWithEmailAndPassword: typeof window.signInWithEmailAndPassword,
-                createUserWithEmailAndPassword: typeof window.createUserWithEmailAndPassword,
-                GoogleAuthProvider: typeof window.GoogleAuthProvider,
-                signInWithPopup: typeof window.signInWithPopup
-            });
-
             const authForm = document.getElementById('authForm');
             const authSwitchBtn = document.getElementById('authSwitchBtn');
 
             if (authForm && authSwitchBtn) {
-                console.log('Auth elements found, adding event listeners');
                 authForm.addEventListener('submit', handleAuth);
                 authSwitchBtn.addEventListener('click', toggleAuthMode);
-            } else {
-                console.error('Auth elements not found:', {authForm, authSwitchBtn});
             }
 
             // Listen for auth state changes
             if (window.onAuthStateChanged && window.auth) {
-                console.log('Setting up auth state listener');
                 window.onAuthStateChanged(window.auth, (user) => {
-                    console.log('Auth state changed:', user ? 'User logged in' : 'User logged out');
                     if (user) {
                         currentUser = user;
                         showApp();
@@ -1880,26 +1528,17 @@
                         showAuth();
                     }
                 });
-            } else {
-                console.error('Firebase auth not available:', {
-                    onAuthStateChanged: window.onAuthStateChanged,
-                    auth: window.auth
-                });
             }
         }
 
         async function handleGoogleAuth() {
-            console.log('Google auth button clicked');
             const errorDiv = document.getElementById('authError');
-
             try {
                 const provider = new window.GoogleAuthProvider();
-                console.log('Attempting Google sign in...');
                 await window.signInWithPopup(window.auth, provider);
-                console.log('Google sign in successful');
             } catch (error) {
-                console.error('Google auth error:', error);
                 errorDiv.textContent = error.message;
+                errorDiv.classList.add('show');
             }
         }
 
@@ -1925,26 +1564,23 @@
 
         async function handleAuth(e) {
             e.preventDefault();
-            console.log('Auth form submitted', isSignUp ? 'Sign Up' : 'Sign In');
-
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('authError');
 
-            console.log('Email:', email, 'Password length:', password.length);
+            // Clear any previous error
+            errorDiv.classList.remove('show');
+            errorDiv.textContent = '';
 
             try {
                 if (isSignUp) {
-                    console.log('Creating user...');
                     await window.createUserWithEmailAndPassword(window.auth, email, password);
                 } else {
-                    console.log('Signing in...');
                     await window.signInWithEmailAndPassword(window.auth, email, password);
                 }
-                console.log('Auth successful');
             } catch (error) {
-                console.error('Auth error:', error);
                 errorDiv.textContent = error.message;
+                errorDiv.classList.add('show');
             }
         }
 
@@ -1969,7 +1605,7 @@
             document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
         }
 
-        function showLoading() {
+        function showLoadingScreen() {
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('loadingScreen').style.display = 'block';
             document.getElementById('appContainer').style.display = 'none';
@@ -1996,7 +1632,7 @@
         async function loadUserData() {
             if (!currentUser) return;
             
-            showLoading();
+            showLoadingScreen();
             
             try {
                 const userDocRef = window.doc(window.db, 'users', currentUser.uid);
@@ -2111,12 +1747,10 @@
         function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
             let html = '';
             
-            // Determine how many sets to show (current data or previous data, whichever is more)
             const currentSets = exerciseData.sets.length;
             const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
-            const maxSets = Math.max(currentSets, previousSets, 2); // Minimum 2 sets
+            const maxSets = Math.max(currentSets, previousSets, 2);
             
-            // Ensure we have enough sets in current data
             while (exerciseData.sets.length < maxSets) {
                 exerciseData.sets.push({ weight: '', reps: '' });
             }
@@ -2125,13 +1759,11 @@
                 const currentSet = exerciseData.sets[setIndex] || { weight: '', reps: '' };
                 const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
                 
-                // Use previous week's data as placeholder if current is empty
                 const weightValue = currentSet.weight !== '' ? currentSet.weight : 
                                   (previousSet && currentWeek > 1 ? previousSet.weight : '');
                 const repsValue = currentSet.reps !== '' ? currentSet.reps : 
                                 (previousSet && currentWeek > 1 ? previousSet.reps : '');
                 
-                // Determine input styling based on data source
                 const hasCurrentData = currentSet.weight !== '' || currentSet.reps !== '';
                 const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1;
                 
@@ -2187,12 +1819,6 @@
                 exerciseData.sets[setIndex] = { weight: '', reps: '' };
             }
             exerciseData.sets[setIndex][field] = value;
-            
-            // Update the input styling to show it's now current data
-            const input = event.target;
-            input.classList.remove('previous-data');
-            input.classList.add('current-data');
-            
             saveUserData();
         }
 
@@ -2235,7 +1861,6 @@
             document.getElementById('exerciseModal').style.display = 'flex';
             clearSearch();
 
-            // Check for API key and show setup message if needed
             if (!getRapidApiKey()) {
                 document.getElementById('exerciseList').innerHTML = `
                     <div class="no-results">
@@ -2243,7 +1868,7 @@
                         <p>To use the Exercise Catalog, you need a RapidAPI key:</p>
                         <ol style="text-align: left; margin: 16px 0; color: var(--muted);">
                             <li>Get a free key from <a href="https://rapidapi.com/justin-WFnsXH_t6/api/exercisedb" target="_blank" style="color: var(--accent);">RapidAPI ExerciseDB</a></li>
-                            <li>Open browser console and run:<br><code style="background: var(--card); padding: 4px 8px; border-radius: 4px; font-family: monospace;">localStorage.setItem('RAPIDAPI_KEY', 'your-key-here')</code></li>
+                            <li>Open browser console and run:<br><code>localStorage.setItem('RAPIDAPI_KEY', 'your-key-here')</code></li>
                             <li>Refresh the page</li>
                         </ol>
                         <p>For production, use environment variables.</p>
@@ -2275,25 +1900,24 @@
             filterExercises();
         }
 
-        function showLoading() {
+        function showExerciseLoading() {
             document.getElementById('exerciseLoading').style.display = 'flex';
             document.getElementById('exerciseError').style.display = 'none';
             document.getElementById('exerciseList').style.display = 'none';
         }
 
-        function hideLoading() {
+        function hideExerciseLoading() {
             document.getElementById('exerciseLoading').style.display = 'none';
             document.getElementById('exerciseList').style.display = 'grid';
         }
 
-        function showError(errorMessage = '') {
+        function showExerciseError(errorMessage = '') {
             document.getElementById('exerciseLoading').style.display = 'none';
             document.getElementById('exerciseList').style.display = 'none';
 
             const errorElement = document.getElementById('exerciseError');
             const errorText = errorElement.querySelector('p');
 
-            // Check if it's an API key issue
             if (errorMessage.includes('401') || errorMessage.includes('403') || !getRapidApiKey()) {
                 errorText.textContent = 'API key missing or invalid. Add your RapidAPI key to localStorage as "RAPIDAPI_KEY" for development.';
             } else if (errorMessage.includes('429')) {
@@ -2306,7 +1930,7 @@
         }
 
         function showNoResults() {
-            hideLoading();
+            hideExerciseLoading();
             document.getElementById('exerciseList').innerHTML = `
                 <div class="no-results">
                     <p>Search or filter exercises to get started</p>
@@ -2320,7 +1944,7 @@
 
             try {
                 isSearching = true;
-                showLoading();
+                showExerciseLoading();
 
                 let exercises = [];
 
@@ -2337,11 +1961,11 @@
 
                 exerciseSearchResults = Array.isArray(exercises) ? exercises : [];
                 displayExercises(exerciseSearchResults);
-                hideLoading();
+                hideExerciseLoading();
 
             } catch (error) {
                 console.error('Search error:', error);
-                showError(error.message);
+                showExerciseError(error.message);
             } finally {
                 isSearching = false;
             }
@@ -2349,7 +1973,6 @@
 
         function searchExercises(query) {
             currentSearchQuery = query?.trim() || '';
-            // Clear filters when searching by name
             if (currentSearchQuery) {
                 currentMuscleFilter = '';
                 currentEquipmentFilter = '';
@@ -2366,7 +1989,6 @@
             currentMuscleFilter = muscleSelect.value;
             currentEquipmentFilter = equipmentSelect.value;
 
-            // Clear search query when filtering
             if (currentMuscleFilter || currentEquipmentFilter) {
                 currentSearchQuery = '';
                 document.getElementById('exerciseSearch').value = '';
@@ -2394,8 +2016,7 @@
         function createExerciseCard(exercise) {
             const { id, name, target, equipment, gifUrl, bodyPart } = exercise;
 
-            // Escape quotes for safe HTML
-            const safeName = name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const safeName = (name || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
             const safeTarget = (target || '').replace(/'/g, "\\'");
             const safeEquipment = (equipment || '').replace(/'/g, "\\'");
             const safeGifUrl = (gifUrl || '').replace(/'/g, "\\'");
@@ -2423,7 +2044,6 @@
         }
 
         function addExerciseToPlan(exerciseId, exerciseName, target, equipment, gifUrl = '', bodyPart = '') {
-            // Create normalized exercise object
             const apiExercise = {
                 id: exerciseId,
                 name: exerciseName,
@@ -2434,21 +2054,10 @@
             };
 
             const normalizedExercise = normalizeExercise(apiExercise);
-
-            // Show success indicator
             showSaveIndicator();
-
-            // For now, just show details. In full implementation:
-            // 1. Add normalizedExercise to current workout plan
-            // 2. Update workoutData structure
-            // 3. Save to Firebase
-            // 4. Refresh workout display
 
             console.log('Normalized exercise for plan:', normalizedExercise);
             alert(`"${exerciseName}" ready for plan integration!\n\nTarget: ${target}\nEquipment: ${equipment}\n\n(Demo - integration with workout plans coming next)`);
-
-            // Optional: close modal after adding
-            // closeExerciseModal();
         }
 
         function retrySearch() {
@@ -2459,11 +2068,29 @@
             }
         }
 
+        // Make functions global for onclick handlers
+        window.handleGoogleAuth = handleGoogleAuth;
+        window.handleLogout = handleLogout;
+        window.openExerciseModal = openExerciseModal;
+        window.closeExerciseModal = closeExerciseModal;
+        window.searchExercises = searchExercises;
+        window.filterExercises = filterExercises;
+        window.clearFilters = clearFilters;
+        window.addExerciseToPlan = addExerciseToPlan;
+        window.retrySearch = retrySearch;
+        window.selectWeek = selectWeek;
+        window.showWorkout = showWorkout;
+        window.updateExerciseSelection = updateExerciseSelection;
+        window.updateSetData = updateSetData;
+        window.updateComments = updateComments;
+        window.addSet = addSet;
+        window.removeSet = removeSet;
+
         // Add keyboard support for search
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modal = document.getElementById('exerciseModal');
-                if (modal.style.display === 'flex') {
+                if (modal && modal.style.display === 'flex') {
                     closeExerciseModal();
                 }
             }
@@ -2471,13 +2098,179 @@
 
         // Initialize the app when page loads
         window.addEventListener('load', () => {
-            console.log('Page loaded, initializing...');
-            console.log('Document ready state:', document.readyState);
             initAuth();
         });
 
-        // Add additional debugging
-        console.log('Script loaded successfully');
     </script>
+
+    <div id="authContainer" class="auth-container">
+        <h2 id="authTitle">Welcome to Split Tracker</h2>
+        
+        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+        </button>
+        
+        <div class="divider">or</div>
+        
+        <form id="authForm" class="auth-form">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
+            <div id="authError" class="error"></div>
+        </form>
+        <div class="auth-switch">
+            <span id="authSwitchText">Don't have an account?</span>
+            <button type="button" id="authSwitchBtn">Sign Up</button>
+        </div>
+    </div>
+
+    <div id="loadingScreen" class="loading" style="display: none;">
+        <h2>Loading your workouts...</h2>
+    </div>
+
+    <div id="appContainer" class="container" style="display: none;">
+        <div class="header">
+            <h1>💪 Split Workout Tracker</h1>
+            <p>2 on • 1 off • 2 on • 1-2 off</p>
+            <div class="user-info" id="userInfo"></div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="controls">
+            <div class="week-selector">
+                <label for="weekSelect">Week</label>
+                <select id="weekSelect" onchange="selectWeek(this.value)">
+                    <option value="1">Week 1</option>
+                    <option value="2">Week 2</option>
+                    <option value="3">Week 3</option>
+                    <option value="4">Week 4</option>
+                    <option value="5">Week 5</option>
+                    <option value="6">Week 6</option>
+                    <option value="7">Week 7</option>
+                    <option value="8">Week 8</option>
+                    <option value="9">Week 9</option>
+                    <option value="10">Week 10</option>
+                    <option value="11">Week 11</option>
+                    <option value="12">Week 12</option>
+                </select>
+            </div>
+
+            <div class="workout-selector">
+                <label for="workoutSelect">Workout</label>
+                <select id="workoutSelect" onchange="showWorkout(this.value)">
+                    <option value="upperA">Upper A</option>
+                    <option value="lowerA">Lower A</option>
+                    <option value="rest1">Rest Day</option>
+                    <option value="upperB">Upper B</option>
+                    <option value="lowerB">Lower B</option>
+                    <option value="rest2">Rest Day</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="exercise-catalog-btn-container">
+            <button class="exercise-catalog-btn" onclick="openExerciseModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Browse Exercise Catalog
+            </button>
+        </div>
+
+        <div id="workoutContent" class="workout-content">
+            <!-- Content will be dynamically generated -->
+        </div>
+    </div>
+
+    <!-- Exercise Catalog Modal -->
+    <div id="exerciseModal" class="modal" style="display: none;">
+        <div class="modal-backdrop" onclick="closeExerciseModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercise Catalog</h2>
+                <button class="modal-close" onclick="closeExerciseModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Search and Filters -->
+                <div class="exercise-search-section">
+                    <div class="search-box">
+                        <input type="text" id="exerciseSearch" placeholder="Search exercises..." oninput="searchExercises(this.value)">
+                        <button class="search-btn" onclick="searchExercises(document.getElementById('exerciseSearch').value)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="muscleFilter">Muscle Group</label>
+                            <select id="muscleFilter" onchange="filterExercises()">
+                                <option value="">All Muscles</option>
+                                <option value="abdominals">Abdominals</option>
+                                <option value="biceps">Biceps</option>
+                                <option value="calves">Calves</option>
+                                <option value="chest">Chest</option>
+                                <option value="delts">Delts</option>
+                                <option value="forearms">Forearms</option>
+                                <option value="glutes">Glutes</option>
+                                <option value="hamstrings">Hamstrings</option>
+                                <option value="lats">Lats</option>
+                                <option value="quads">Quads</option>
+                                <option value="traps">Traps</option>
+                                <option value="triceps">Triceps</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="equipmentFilter">Equipment</label>
+                            <select id="equipmentFilter" onchange="filterExercises()">
+                                <option value="">All Equipment</option>
+                                <option value="barbell">Barbell</option>
+                                <option value="dumbbell">Dumbbell</option>
+                                <option value="cable">Cable</option>
+                                <option value="machine">Machine</option>
+                                <option value="bodyweight">Bodyweight</option>
+                                <option value="kettlebell">Kettlebell</option>
+                                <option value="resistance band">Resistance Band</option>
+                            </select>
+                        </div>
+
+                        <button class="clear-filters-btn" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="exercise-results">
+                    <div id="exerciseLoading" class="exercise-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Searching exercises...</p>
+                    </div>
+
+                    <div id="exerciseError" class="exercise-error" style="display: none;">
+                        <p>Failed to load exercises. Please try again.</p>
+                        <button class="retry-btn" onclick="retrySearch()">Retry</button>
+                    </div>
+
+                    <div id="exerciseList" class="exercise-list">
+                        <div class="no-results">
+                            <p>Search or filter exercises to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="saveIndicator" class="save-indicator">Saved ✓</div>
+
 </body>
 </html>
+            
