@@ -433,64 +433,6 @@
             opacity: 1;
         }
 
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-        }
-
-        .close-btn {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-btn:hover,
-        .close-btn:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        #exerciseSearch {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .exercise-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .exercise-list-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-        }
-
-        .exercise-list-item:hover {
-            background-color: #f1f1f1;
-        }
-
         @media (max-width: 480px) {
             .container {
                 padding: 5px;
@@ -611,23 +553,14 @@
             </div>
 
             <div class="workout-selector">
-                <label for="planSelect">Workout Plan</label>
-                <select id="planSelect" onchange="selectPlan(this.value)">
-                    <option value="upperLower">Upper/Lower Split</option>
-                    <option value="custom">New Custom Plan</option>
-                </select>
-            </div>
-
-            <div class="workout-selector" id="daySelectorContainer">
-                <label for="daySelect">Day of the Week</label>
-                <select id="daySelect" onchange="showWorkoutForDay(this.value)">
-                    <option value="1">Day 1</option>
-                    <option value="2">Day 2</option>
-                    <option value="3">Day 3</option>
-                    <option value="4">Day 4</option>
-                    <option value="5">Day 5</option>
-                    <option value="6">Day 6</option>
-                    <option value="7">Day 7</option>
+                <label for="workoutSelect">Workout</label>
+                <select id="workoutSelect" onchange="showWorkout(this.value)">
+                    <option value="upperA">Upper A</option>
+                    <option value="lowerA">Lower A</option>
+                    <option value="rest1">Rest Day</option>
+                    <option value="upperB">Upper B</option>
+                    <option value="lowerB">Lower B</option>
+                    <option value="rest2">Rest Day</option>
                 </select>
             </div>
         </div>
@@ -637,45 +570,14 @@
         </div>
     </div>
 
-    <div id="exerciseCatalogModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeExerciseCatalog()">&times;</span>
-            <h2>Exercise Catalog</h2>
-            <input type="text" id="exerciseSearch" onkeyup="filterExercises()" placeholder="Search for exercises..">
-            <div id="exerciseList" class="exercise-list"></div>
-        </div>
-    </div>
-
     <div id="saveIndicator" class="save-indicator">Saved ✓</div>
 
     <script>
         let currentUser = null;
         let currentWeek = 1;
-        let currentWorkout = 'upperA'; // This will now refer to the preset workout key
-        let currentPlanType = 'upperLower'; // 'upperLower' or 'custom'
-        let currentDay = 1; // For custom plans
+        let currentWorkout = 'upperA';
         let workoutData = {};
-        let customWorkouts = {}; // New object to store custom workout plans
         let isSignUp = false;
-        let allExercises = []; // To store all exercises fetched from the API
-
-        // API URL for exercises
-        const EXERCISE_API_URL = 'https://exercisedbapi.netlify.app/.netlify/functions/api/exercises';
-
-        // Fetch exercises from the API
-        async function fetchExercises() {
-            try {
-                const response = await fetch(EXERCISE_API_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                allExercises = await response.json();
-                console.log('Exercises fetched:', allExercises);
-                renderExerciseCatalog(allExercises);
-            } catch (error) {
-                console.error('Error fetching exercises:', error);
-            }
-        }
 
         // Exercise execution tips and tempo explanations
         const exerciseTips = {
@@ -1019,18 +921,6 @@
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
             document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
-
-            // Set initial selection for plan and day/workout
-            document.getElementById('planSelect').value = currentPlanType;
-            if (currentPlanType === 'upperLower') {
-                document.getElementById('daySelectorContainer').style.display = 'none';
-                document.getElementById('workoutSelect').value = currentWorkout;
-                showWorkout(currentWorkout);
-            } else {
-                document.getElementById('daySelectorContainer').style.display = 'block';
-                document.getElementById('daySelect').value = currentDay;
-                renderCustomWorkout(currentWeek, currentDay);
-            }
         }
 
         function showLoading() {
@@ -1039,14 +929,11 @@
             document.getElementById('appContainer').style.display = 'none';
         }
 
-
-
+        // Data functions
         function initializeWorkoutData() {
             workoutData = {};
-            customWorkouts = {};
             for (let week = 1; week <= 12; week++) {
                 workoutData[week] = {};
-                customWorkouts[week] = {};
                 for (let workoutKey in workouts) {
                     workoutData[week][workoutKey] = {};
                     workouts[workoutKey].exercises.forEach((exercise, index) => {
@@ -1057,48 +944,7 @@
                         };
                     });
                 }
-                for (let day = 1; day <= 7; day++) {
-                    customWorkouts[week][day] = []; // Each day starts with an empty array of exercises
-                }
             }
-        }
-
-        function renderExerciseCatalog(exercises) {
-            const exerciseListDiv = document.getElementById('exerciseList');
-            exerciseListDiv.innerHTML = '';
-            exercises.forEach(exercise => {
-                const exerciseItem = document.createElement('div');
-                exerciseItem.classList.add('exercise-list-item');
-                exerciseItem.textContent = exercise.name; // Assuming exercise object has a 'name' property
-                exerciseItem.onclick = () => addExerciseToCustomPlan(exercise);
-                exerciseListDiv.appendChild(exerciseItem);
-            });
-        }
-
-        function openExerciseCatalog() {
-            document.getElementById('exerciseCatalogModal').style.display = 'block';
-        }
-
-        function closeExerciseCatalog() {
-            document.getElementById('exerciseCatalogModal').style.display = 'none';
-        }
-
-        function filterExercises() {
-            const searchInput = document.getElementById('exerciseSearch').value.toLowerCase();
-            const filteredExercises = allExercises.filter(exercise => 
-                exercise.name.toLowerCase().includes(searchInput)
-            );
-            renderExerciseCatalog(filteredExercises);
-        }
-            const currentCustomDay = customWorkouts[currentWeek][currentDay];
-            currentCustomDay.push({
-                name: exercise.name,
-                sets: [{ weight: '', reps: '' }], // Initialize with one empty set
-                comments: ''
-            });
-            saveUserData();
-            renderCustomWorkout(currentWeek, currentDay);
-            closeExerciseCatalog();
         }
 
         async function loadUserData() {
@@ -1117,17 +963,6 @@
                     } else {
                         initializeWorkoutData();
                     }
-                    if (userData.customWorkouts) {
-                        customWorkouts = userData.customWorkouts;
-                    } else {
-                        // If customWorkouts doesn't exist, initialize it
-                        for (let week = 1; week <= 12; week++) {
-                            customWorkouts[week] = {};
-                            for (let day = 1; day <= 7; day++) {
-                                customWorkouts[week][day] = [];
-                            }
-                        }
-                    }
                 } else {
                     initializeWorkoutData();
                     await saveUserData();
@@ -1138,12 +973,7 @@
             }
             
             showApp();
-            // Initial display based on current plan type
-            if (currentPlanType === 'upperLower') {
-                showWorkout(currentWorkout);
-            } else {
-                showWorkoutForDay(currentDay);
-            }
+            showWorkout(currentWorkout);
         }
 
         async function saveUserData() {
@@ -1153,7 +983,6 @@
                 const userDocRef = window.doc(window.db, 'users', currentUser.uid);
                 await window.setDoc(userDocRef, {
                     workouts: workoutData,
-                    customWorkouts: customWorkouts, // Save custom workouts
                     lastUpdated: new Date()
                 }, { merge: true });
                 
@@ -1166,66 +995,7 @@
         // App functions
         function selectWeek(week) {
             currentWeek = parseInt(week);
-            if (currentPlanType === 'upperLower') {
-                showWorkout(currentWorkout);
-            } else {
-                showWorkoutForDay(currentDay);
-            }
-        }
-
-        function addExerciseToCustomPlan(exercise) {
-            // This will be implemented later
-            console.log('Add exercise to custom plan:', exercise);
-            closeExerciseCatalog();
-        }
-
-        function selectPlan(planType) {
-            currentPlanType = planType;
-            const daySelectorContainer = document.getElementById('daySelectorContainer');
-            if (planType === 'custom') {
-                daySelectorContainer.style.display = 'block';
-                openExerciseCatalog(); // Open catalog when starting a new custom plan
-                showWorkoutForDay(currentDay); // Display the current day for custom plan
-            } else {
-                daySelectorContainer.style.display = 'none';
-                showWorkout(currentWorkout); // Display the preset workout
-            }
-        }
-
-        function showWorkoutForDay(day) {
-            currentDay = parseInt(day);
-            document.getElementById('daySelect').value = day;
-            renderCustomWorkout(currentWeek, currentDay);
-        }
-
-        function renderCustomWorkout(week, day) {
-            const content = document.getElementById('workoutContent');
-            const exercisesForDay = customWorkouts[week][day];
-
-            if (exercisesForDay.length === 0) {
-                content.innerHTML = `
-                    <div class="rest-day">
-                        <h2>No exercises for Day ${day}</h2>
-                        <p>Click 'New Custom Plan' to add exercises.</p>
-                        <button onclick="openExerciseCatalog()">Add Exercises</button>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = tempoKey;
-            exercisesForDay.forEach((exercise, index) => {
-                // This part needs to be adapted to how custom exercises are stored
-                // For now, a simplified display
-                html += `
-                    <div class="exercise">
-                        <div class="exercise-name">${exercise.name}</div>
-                        <div class="exercise-info">Sets: ${exercise.sets || 'N/A'} • Reps: ${exercise.reps || 'N/A'}</div>
-                        <!-- Add more details or input fields for sets/reps if needed for custom exercises -->
-                    </div>
-                `;
-            });
-            content.innerHTML = html;
+            showWorkout(currentWorkout);
         }
 
         function showWorkout(workoutKey) {
@@ -1297,14 +1067,8 @@
             
             // Determine how many sets to show (current data or previous data, whichever is more)
             const currentSets = exerciseData.sets.length;
-            let maxSets = currentSets; // Start with current sets
-
-            if (currentPlanType === 'upperLower' && previousWeekData) {
-                const prevSetsCount = previousWeekData.sets.length;
-                maxSets = Math.max(currentSets, prevSetsCount, 2); // Minimum 2 sets for preset
-            } else if (currentPlanType === 'custom') {
-                maxSets = Math.max(currentSets, 1); // Minimum 1 set for custom
-            }
+            const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
+            const maxSets = Math.max(currentSets, previousSets, 2); // Minimum 2 sets
             
             // Ensure we have enough sets in current data
             while (exerciseData.sets.length < maxSets) {
@@ -1313,12 +1077,9 @@
             
             for (let setIndex = 0; setIndex < maxSets; setIndex++) {
                 const currentSet = exerciseData.sets[setIndex] || { weight: '', reps: '' };
-                let previousSet = null;
-                if (currentPlanType === 'upperLower' && previousWeekData && previousWeekData.sets[setIndex]) {
-                    previousSet = previousWeekData.sets[setIndex];
-                }
+                const previousSet = previousWeekData && previousWeekData.sets[setIndex] ? previousWeekData.sets[setIndex] : null;
                 
-                // Use previous week's data as placeholder if current is empty (only for upperLower)
+                // Use previous week's data as placeholder if current is empty
                 const weightValue = currentSet.weight !== '' ? currentSet.weight : 
                                   (previousSet && currentWeek > 1 ? previousSet.weight : '');
                 const repsValue = currentSet.reps !== '' ? currentSet.reps : 
@@ -1326,7 +1087,7 @@
                 
                 // Determine input styling based on data source
                 const hasCurrentData = currentSet.weight !== '' || currentSet.reps !== '';
-                const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1 && currentPlanType === 'upperLower';
+                const hasPreviousData = previousSet && (previousSet.weight || previousSet.reps) && currentWeek > 1;
                 
                 let weightClass = '';
                 let repsClass = '';
@@ -1358,7 +1119,7 @@
                                class="${repsClass}"
                                onchange="updateSetData(${exerciseIndex}, ${setIndex}, 'reps', this.value)"
                                onfocus="this.classList.remove('previous-data'); this.classList.add('current-data');">
-                        ${setIndex > 0 || currentPlanType === 'custom' ? `<button class="remove-set" onclick="removeSet(${exerciseIndex}, ${setIndex})">×</button>` : '<span></span>'}
+                        ${setIndex > 1 ? `<button class="remove-set" onclick="removeSet(${exerciseIndex}, ${setIndex})">×</button>` : '<span></span>'}
                         ${hasPreviousData && !hasCurrentData ? 
                             `<div class="previous-note">Previous week data - click to edit</div>` : ''
                         }
@@ -1370,25 +1131,16 @@
         }
 
         function updateExerciseSelection(exerciseIndex, value) {
-            if (currentPlanType === 'upperLower') {
-                workoutData[currentWeek][currentWorkout][exerciseIndex].selectedExercise = value;
-                saveUserData();
-            }
-            // For custom plans, the exercise is already selected when added from the catalog
+            workoutData[currentWeek][currentWorkout][exerciseIndex].selectedExercise = value;
+            saveUserData();
         }
 
         function updateSetData(exerciseIndex, setIndex, field, value) {
-            let targetData;
-            if (currentPlanType === 'upperLower') {
-                targetData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            } else {
-                targetData = customWorkouts[currentWeek][currentDay][exerciseIndex];
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
+            if (!exerciseData.sets[setIndex]) {
+                exerciseData.sets[setIndex] = { weight: '', reps: '' };
             }
-
-            if (!targetData.sets[setIndex]) {
-                targetData.sets[setIndex] = { weight: '', reps: '' };
-            }
-            targetData.sets[setIndex][field] = value;
+            exerciseData.sets[setIndex][field] = value;
             
             // Update the input styling to show it's now current data
             const input = event.target;
@@ -1399,40 +1151,24 @@
         }
 
         function updateComments(exerciseIndex, value) {
-            if (currentPlanType === 'upperLower') {
-                workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
-            } else {
-                customWorkouts[currentWeek][currentDay][exerciseIndex].comments = value;
-            }
+            workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
             saveUserData();
         }
 
         function addSet(exerciseIndex) {
-            let exerciseData;
-            if (currentPlanType === 'upperLower') {
-                exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            } else {
-                exerciseData = customWorkouts[currentWeek][currentDay][exerciseIndex];
-            }
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
             exerciseData.sets.push({ weight: '', reps: '' });
             
-            // Re-render the sets for the specific exercise
-            const previousWeekData = currentWeek > 1 && currentPlanType === 'upperLower' ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
+            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
             document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
             saveUserData();
         }
 
         function removeSet(exerciseIndex, setIndex) {
-            let exerciseData;
-            if (currentPlanType === 'upperLower') {
-                exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
-            } else {
-                exerciseData = customWorkouts[currentWeek][currentDay][exerciseIndex];
-            }
+            const exerciseData = workoutData[currentWeek][currentWorkout][exerciseIndex];
             exerciseData.sets.splice(setIndex, 1);
             
-            // Re-render the sets for the specific exercise
-            const previousWeekData = currentWeek > 1 && currentPlanType === 'upperLower' ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
+            const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][exerciseIndex] : null;
             document.getElementById(`sets-${exerciseIndex}`).innerHTML = generateSetsHTML(exerciseIndex, exerciseData, previousWeekData);
             saveUserData();
         }
@@ -1448,7 +1184,6 @@
         // Initialize the app when page loads
         window.addEventListener('load', () => {
             initAuth();
-            fetchExercises(); // Fetch exercises on load
         });
     </script>
 </body>
