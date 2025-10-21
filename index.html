@@ -67,11 +67,6 @@
                             weights.push(0); reps.push(0);
                         }
                     }
-                    // Detect dark mode
-                    const isDark = document.body.classList.contains('dark-mode');
-                    const chartBg = isDark ? '#181a1b' : '#fff';
-                    const gridColor = isDark ? '#444' : '#e0e0e0';
-                    const textColor = isDark ? '#f1f1f1' : '#222';
                     const ctx = document.getElementById('progressChart').getContext('2d');
                     if (chartInstance) chartInstance.destroy();
                     chartInstance = new Chart(ctx, {
@@ -85,47 +80,32 @@
                         },
                         options: {
                             responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: { color: textColor }
-                                }
-                            },
-                            layout: {
-                                padding: 0
-                            },
+                            plugins: { legend: { position: 'top' } },
                             scales: {
-                                x: {
-                                    ticks: { color: textColor },
-                                    grid: { color: gridColor }
-                                },
                                 y: {
                                     type: 'linear',
                                     display: true,
                                     position: 'left',
-                                    title: { display: true, text: 'Weight', color: textColor },
+                                    title: { display: true, text: 'Weight' },
                                     min: 0,
                                     max: 600,
                                     ticks: {
-                                        color: textColor,
                                         stepSize: 50,
                                         callback: function(value) {
                                             if (value % 50 === 0 && value >= 0 && value <= 600) return value;
                                             return '';
                                         }
-                                    },
-                                    grid: { color: gridColor }
+                                    }
                                 },
                                 y1: {
                                     type: 'linear',
                                     display: true,
                                     position: 'right',
-                                    grid: { drawOnChartArea: false, color: gridColor },
-                                    title: { display: true, text: 'Reps', color: textColor },
+                                    grid: { drawOnChartArea: false },
+                                    title: { display: true, text: 'Reps' },
                                     min: 0,
                                     max: 20,
                                     ticks: {
-                                        color: textColor,
                                         stepSize: 1,
                                         autoSkip: false,
                                         callback: function(value) {
@@ -135,18 +115,7 @@
                                     }
                                 },
                             }
-                        },
-                        plugins: [{
-                            id: 'customBg',
-                            beforeDraw: (chart) => {
-                                const ctx = chart.ctx;
-                                ctx.save();
-                                ctx.globalCompositeOperation = 'destination-over';
-                                ctx.fillStyle = chartBg;
-                                ctx.fillRect(0, 0, chart.width, chart.height);
-                                ctx.restore();
-                            }
-                        }]
+                        }
                     });
                 }
                                 autoSkip: false,
@@ -164,10 +133,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             const darkPref = localStorage.getItem('darkMode');
             setDarkMode(darkPref === '1');
-            document.getElementById('darkModeToggle').onclick = function() {
-                toggleDarkMode();
-                renderProgressChart();
-            };
+            document.getElementById('darkModeToggle').onclick = toggleDarkMode;
         });
         }
 
