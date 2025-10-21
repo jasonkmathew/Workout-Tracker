@@ -796,10 +796,16 @@
                                     if (value >= 1 && value <= 20) return value;
                                     if (value > 20 && value % 10 === 0 && value <= 600) return value;
                                     return '';
-                                }
+                                },
+                                autoSkip: false
                             }
                         },
-                        y2: { type: 'linear', display: false, position: 'right' }
+                        y2: {
+                            type: 'linear',
+                            display: false,
+                            position: 'right',
+                            min: 0
+                        }
                     }
                 }
             });
