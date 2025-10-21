@@ -36,69 +36,56 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        function renderProgressChart() {
-            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
-            const select = document.getElementById('analyticsExerciseSelect');
-            const exerciseIdx = parseInt(select.value || 0);
-            const labels = [];
-            const weights = [];
-            const reps = [];
-            for (let week = 1; week <= 12; week++) {
-                labels.push('Week ' + week);
-                const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
-                function renderProgressChart() {
-                    const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
-                    const select = document.getElementById('analyticsExerciseSelect');
-                    const exerciseIdx = parseInt(select.value || 0);
-                    const labels = [];
-                    const weights = [];
-                    const reps = [];
-                    for (let week = 1; week <= 12; week++) {
-                        labels.push('Week ' + week);
-                        const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
-                        if (exData) {
-                            // Use first set for simplicity
-                            const set = exData.sets[0] || { weight: '', reps: '' };
-                            const w = parseFloat(set.weight) || 0;
-                            const r = parseFloat(set.reps) || 0;
-                            weights.push(w);
-                            reps.push(r);
-                        } else {
-                            weights.push(0); reps.push(0);
-                        }
-                    }
-                    const ctx = document.getElementById('progressChart').getContext('2d');
-                    if (chartInstance) chartInstance.destroy();
-                    chartInstance = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels,
-                            datasets: [
-                                { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
-                                { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { position: 'top' } },
-                            scales: {
-                                y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
-                                y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } }
-                            }
-                        }
-                    });
-                }
-                                autoSkip: false,
-                                callback: function(value) {
-                                    if (value >= 0 && value <= 20) return value;
-                                    return '';
-                                }
-                            }
-                        },
-                    }
-                }
-            });
+        /* ...existing code... */
+
+    </style>
+    <script>
+    // --- Progress Chart Rendering ---
+    let chartInstance;
+    function renderProgressChart() {
+        const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
+        const select = document.getElementById('analyticsExerciseSelect');
+        const exerciseIdx = parseInt(select.value || 0);
+        const labels = [];
+        const weights = [];
+        const reps = [];
+        for (let week = 1; week <= 12; week++) {
+            labels.push('Week ' + week);
+            const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
+            if (exData) {
+                // Use first set for simplicity
+                const set = exData.sets[0] || { weight: '', reps: '' };
+                const w = parseFloat(set.weight) || 0;
+                const r = parseFloat(set.reps) || 0;
+                weights.push(w);
+                reps.push(r);
+            } else {
+                weights.push(0);
+                reps.push(0);
+            }
         }
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
+                    { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
+                    y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } }
+                }
+            }
+        });
+    }
+    </script>
         // Re-render chart on dark mode toggle
         window.addEventListener('DOMContentLoaded', () => {
             const darkPref = localStorage.getItem('darkMode');
@@ -693,7 +680,7 @@
         let isSignUp = false;
 
         // --- Analytics Section ---
-        let chartInstance = null;
+    // chartInstance already declared globally above
         function showAnalytics() {
             const analyticsSection = document.getElementById('analyticsSection');
             analyticsSection.style.display = 'block';
