@@ -767,12 +767,12 @@
                             display: true,
                             position: 'left',
                             title: { display: true, text: 'Weight' },
-                            min: 50,
+                            min: 0,
                             max: 600,
                             ticks: {
                                 stepSize: 50,
                                 callback: function(value) {
-                                    if (value % 50 === 0 && value >= 50 && value <= 600) return value;
+                                    if (value % 50 === 0 && value >= 0 && value <= 600) return value;
                                     return '';
                                 }
                             }
@@ -783,13 +783,13 @@
                             position: 'right',
                             grid: { drawOnChartArea: false },
                             title: { display: true, text: 'Reps' },
-                            min: 1,
+                            min: 0,
                             max: 20,
                             ticks: {
                                 stepSize: 1,
                                 autoSkip: false,
                                 callback: function(value) {
-                                    if (value >= 1 && value <= 20) return value;
+                                    if (value >= 0 && value <= 20) return value;
                                     return '';
                                 }
                             }
