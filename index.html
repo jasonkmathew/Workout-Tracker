@@ -36,79 +36,139 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 10px 0 40px 0;
+        function renderProgressChart() {
+            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
+            const select = document.getElementById('analyticsExerciseSelect');
+            const exerciseIdx = parseInt(select.value || 0);
+            const labels = [];
+            const weights = [];
+            const reps = [];
+            for (let week = 1; week <= 12; week++) {
+                labels.push('Week ' + week);
+                const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
+                function renderProgressChart() {
+                    const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
+                    const select = document.getElementById('analyticsExerciseSelect');
+                    const exerciseIdx = parseInt(select.value || 0);
+                    const labels = [];
+                    const weights = [];
+                    const reps = [];
+                    for (let week = 1; week <= 12; week++) {
+                        labels.push('Week ' + week);
+                        const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
+                        if (exData) {
+                            let w = parseFloat(exData.sets[0]?.weight) || 0;
+                            let r = parseFloat(exData.sets[0]?.reps) || 0;
+                            w = Math.max(0, w);
+                            r = Math.max(0, r);
+                            weights.push(w);
+                            reps.push(r);
+                        } else {
+                            weights.push(0); reps.push(0);
+                        }
+                    }
+                    // Detect dark mode
+                    const isDark = document.body.classList.contains('dark-mode');
+                    const chartBg = isDark ? '#181a1b' : '#fff';
+                    const gridColor = isDark ? '#444' : '#e0e0e0';
+                    const textColor = isDark ? '#f1f1f1' : '#222';
+                    const ctx = document.getElementById('progressChart').getContext('2d');
+                    if (chartInstance) chartInstance.destroy();
+                    chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [
+                                { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
+                                { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { color: textColor }
+                                }
+                            },
+                            layout: {
+                                padding: 0
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    title: { display: true, text: 'Weight', color: textColor },
+                                    min: 0,
+                                    max: 600,
+                                    ticks: {
+                                        color: textColor,
+                                        stepSize: 50,
+                                        callback: function(value) {
+                                            if (value % 50 === 0 && value >= 0 && value <= 600) return value;
+                                            return '';
+                                        }
+                                    },
+                                    grid: { color: gridColor }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    grid: { drawOnChartArea: false, color: gridColor },
+                                    title: { display: true, text: 'Reps', color: textColor },
+                                    min: 0,
+                                    max: 20,
+                                    ticks: {
+                                        color: textColor,
+                                        stepSize: 1,
+                                        autoSkip: false,
+                                        callback: function(value) {
+                                            if (value >= 0 && value <= 20) return value;
+                                            return '';
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                        plugins: [{
+                            id: 'customBg',
+                            beforeDraw: (chart) => {
+                                const ctx = chart.ctx;
+                                ctx.save();
+                                ctx.globalCompositeOperation = 'destination-over';
+                                ctx.fillStyle = chartBg;
+                                ctx.fillRect(0, 0, chart.width, chart.height);
+                                ctx.restore();
+                            }
+                        }]
+                    });
+                }
+                                autoSkip: false,
+                                callback: function(value) {
+                                    if (value >= 0 && value <= 20) return value;
+                                    return '';
+                                }
+                            }
+                        },
+                    }
+                }
+            });
         }
-
-        .auth-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 30px 20px;
-            background: var(--card-bg);
-            border-radius: 18px;
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-
-        .auth-container h2 {
-            margin-bottom: 20px;
-            color: #000000;
-        }
-
-        .google-btn {
-            background: #ffffff;
-            color: #000000;
-            border: 2px solid #000000;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 0 auto 15px auto;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .google-btn:hover {
-            background: #000000;
-            color: #ffffff;
-            border-color: #000000;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 15px 0;
-            color: #000000;
-            font-size: 0.9rem;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #000000;
-        }
-
-        .divider::before {
-            margin-right: 15px;
-        }
-
-        .divider::after {
-            margin-left: 15px;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        // Re-render chart on dark mode toggle
+        window.addEventListener('DOMContentLoaded', () => {
+            const darkPref = localStorage.getItem('darkMode');
+            setDarkMode(darkPref === '1');
+            document.getElementById('darkModeToggle').onclick = function() {
+                toggleDarkMode();
+                renderProgressChart();
+            };
+        });
         }
 
         .auth-form label {
@@ -685,7 +745,10 @@
         window.addEventListener('DOMContentLoaded', () => {
             const darkPref = localStorage.getItem('darkMode');
             setDarkMode(darkPref === '1');
-            document.getElementById('darkModeToggle').onclick = toggleDarkMode;
+            document.getElementById('darkModeToggle').onclick = function() {
+                toggleDarkMode();
+                renderProgressChart();
+            };
         });
         let currentUser = null;
         let currentWeek = 1;
