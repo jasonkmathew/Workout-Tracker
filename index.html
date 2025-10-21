@@ -1012,6 +1012,8 @@
                         <p>Recovery time - prepare for your next workout!</p>
                     </div>
                 `;
+                // Sanitize rest day heading in case of encoding artifacts
+                try { const restH2 = content.querySelector('.rest-day h2'); if (restH2) restH2.textContent = 'Rest Day'; } catch (_) {}
                 return;
             }
 
@@ -1061,6 +1063,8 @@
             });
 
             content.innerHTML = html;
+            // Normalize separators in exercise info after render
+            try { fixEncodingArtifacts(); } catch(_) {}
         }
 
         function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
@@ -1144,9 +1148,15 @@
             exerciseData.sets[setIndex][field] = value;
             
             // Update the input styling to show it's now current data
-            const input = event.target;
-            input.classList.remove('previous-data');
-            input.classList.add('current-data');
+            try {
+                if (typeof event !== 'undefined' && event && event.target) {
+                    const input = event.target;
+                    input.classList.remove('previous-data');
+                    input.classList.add('current-data');
+                }
+            } catch (_) {
+                // No-op if event is unavailable (safety for inline handlers)
+            }
             
             saveUserData();
         }
@@ -1182,8 +1192,26 @@
             }, 2000);
         }
 
+        // Normalize any garbled text from encoding issues
+        function fixEncodingArtifacts() {
+            const headerTitle = document.querySelector('.header h1');
+            if (headerTitle) headerTitle.textContent = 'Split Workout Tracker';
+            const headerSub = document.querySelector('.header p');
+            if (headerSub) headerSub.innerHTML = '2 on &middot; 1 off &middot; 2 on &middot; 1-2 off';
+            const saveEl = document.getElementById('saveIndicator');
+            if (saveEl && saveEl.textContent.trim() !== 'Saved') saveEl.textContent = 'Saved';
+            // Replace control/replacement characters in exercise info with a middot separator
+            document.querySelectorAll('.exercise-info').forEach(el => {
+                const cleaned = el.innerHTML
+                    .replace(/[\u0000-\u001F\uFFFD]+/g, ' &middot; ')
+                    .replace(/\s*&middot;\s*/g, ' &middot; ');
+                el.innerHTML = cleaned;
+            });
+        }
+
         // Initialize the app when page loads
         window.addEventListener('load', () => {
+            fixEncodingArtifacts();
             initAuth();
         });
     </script>
