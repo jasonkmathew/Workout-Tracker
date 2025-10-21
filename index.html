@@ -4,23 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Split Workout Tracker</title>
-    <!-- Chart.js CDN for analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --primary-bg: #ffffff;
-            --primary-text: #000000;
-            --accent: #005fcc;
-            --card-bg: #fff;
-            --shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-        body.dark-mode {
-            --primary-bg: #181a1b;
-            --primary-text: #f1f1f1;
-            --accent: #4f8cff;
-            --card-bg: #23272a;
-            --shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
         * {
             margin: 0;
             padding: 0;
@@ -29,96 +13,99 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: var(--primary-bg);
+            background: #ffffff;
             min-height: 100vh;
-            color: var(--primary-text);
-            line-height: 1.4;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        /* ...existing code... */
-
-    </style>
-    <script>
-    // --- Progress Chart Rendering ---
-    let chartInstance;
-    function renderProgressChart() {
-        const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
-        const select = document.getElementById('analyticsExerciseSelect');
-        const exerciseIdx = parseInt(select.value || 0);
-        const labels = [];
-        const weights = [];
-        const reps = [];
-        for (let week = 1; week <= 12; week++) {
-            labels.push('Week ' + week);
-            const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
-            if (exData) {
-                // Use first set for simplicity
-                const set = exData.sets[0] || { weight: '', reps: '' };
-                const w = parseFloat(set.weight) || 0;
-                const r = parseFloat(set.reps) || 0;
-                weights.push(w);
-                reps.push(r);
-            } else {
-                weights.push(0);
-                reps.push(0);
-            }
-        }
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [
-                    { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
-                    { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'top' } },
-                scales: {
-                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
-                    y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } }
-                }
-            }
-        });
-    }
-    </script>
-        // Re-render chart on dark mode toggle
-        window.addEventListener('DOMContentLoaded', () => {
-            const darkPref = localStorage.getItem('darkMode');
-            setDarkMode(darkPref === '1');
-            document.getElementById('darkModeToggle').onclick = toggleDarkMode;
-        });
-        }
-
-        .auth-form label {
-            display: block;
-            font-weight: 600;
-            font-size: 0.9rem;
             color: #000000;
-            text-align: left;
+            line-height: 1.4;
         }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            margin-bottom: 20px;
+            color: #000000;
+        }
+
+        .google-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #000000;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 15px auto;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .google-btn:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #000000;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #000000;
+        }
+
+        .divider::before {
+            margin-right: 15px;
+        }
+
+        .divider::after {
+            margin-left: 15px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
         .auth-form input {
             padding: 12px;
             border: 2px solid #000000;
             border-radius: 8px;
             font-size: 1rem;
         }
+
         .auth-form input:focus {
             outline: none;
             border-color: #000000;
         }
-        /* Strong, visible focus outlines for accessibility */
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible {
-            outline: 3px solid #005fcc;
-            outline-offset: 2px;
-        }
+
         .auth-btn {
             background: #000000;
             color: #ffffff;
@@ -129,13 +116,16 @@
             cursor: pointer;
             font-weight: 600;
         }
+
         .auth-btn:hover {
             background: #333333;
         }
+
         .auth-switch {
             margin-top: 15px;
             color: #000000;
         }
+
         .auth-switch button {
             background: none;
             border: none;
@@ -143,11 +133,13 @@
             cursor: pointer;
             text-decoration: underline;
         }
+
         .loading {
             text-align: center;
             padding: 50px;
             color: #000000;
         }
+
         .error {
             color: #000000;
             font-size: 0.9rem;
@@ -157,14 +149,11 @@
         .header {
             text-align: center;
             margin-bottom: 20px;
-            padding: 18px 10px 18px 10px;
-            background: var(--card-bg);
-            border-radius: 14px;
-            box-shadow: var(--shadow);
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .header h1 {
@@ -182,19 +171,13 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: var(--accent);
-            color: #fff;
+            background: #000000;
+            color: #ffffff;
             border: none;
-            padding: 7px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: background 0.2s;
-        }
-        .logout-btn:hover {
-            background: #222;
         }
 
         .user-info {
@@ -204,14 +187,11 @@
         }
 
         .controls {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 18px 10px;
-            margin-bottom: 18px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .week-selector {
@@ -231,9 +211,7 @@
             border: 2px solid #000000;
             border-radius: 6px;
             font-size: 1rem;
-            background: var(--card-bg);
-            color: var(--primary-text);
-            transition: background 0.3s, color 0.3s;
+            background: #ffffff;
         }
 
         .workout-selector label {
@@ -249,21 +227,19 @@
             border: 2px solid #000000;
             border-radius: 6px;
             font-size: 1rem;
-            background: var(--card-bg);
-            color: var(--primary-text);
-            transition: background 0.3s, color 0.3s;
+            background: #ffffff;
         }
 
         .workout-content {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 18px 10px;
-            box-shadow: var(--shadow);
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .exercise {
-            border-bottom: 1px solid var(--accent);
-            padding: 18px 0 10px 0;
+            border-bottom: 1px solid #000000;
+            padding: 15px 0;
         }
 
         .exercise:last-child {
@@ -293,14 +269,6 @@
             border: 1px solid #000000;
             border-radius: 5px;
             font-size: 0.9rem;
-            background: var(--card-bg);
-            color: var(--primary-text);
-            transition: background 0.3s, color 0.3s;
-        }
-        #analyticsWorkoutSelect, #analyticsExerciseSelect {
-            background: var(--card-bg);
-            color: var(--primary-text);
-            transition: background 0.3s, color 0.3s;
         }
 
         .sets-grid {
@@ -353,35 +321,24 @@
         }
 
         .add-set {
-            background: var(--accent);
-            color: #fff;
+            background: #000000;
+            color: #ffffff;
             border: none;
-            padding: 7px 14px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin-bottom: 10px;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: background 0.2s;
-        }
-        .add-set:hover {
-            background: #222;
-        }
-
-        .remove-set {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 2px 8px;
+            padding: 6px 12px;
             border-radius: 4px;
             font-size: 0.8rem;
             cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
+            margin-bottom: 10px;
         }
-        .remove-set:hover {
-            background: #c0392b;
+
+        .remove-set {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            cursor: pointer;
         }
 
         .exercise-tips {
@@ -462,13 +419,11 @@
             position: fixed;
             top: 10px;
             right: 10px;
-            background: var(--accent);
-            color: #fff;
-            padding: 8px 16px;
+            background: #000000;
+            color: #ffffff;
+            padding: 8px 12px;
             border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            font-size: 0.8rem;
             transform: translateY(-50px);
             opacity: 0;
             transition: all 0.3s ease;
@@ -479,32 +434,24 @@
             opacity: 1;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
             .container {
-                padding: 0 2vw 40px 2vw;
+                padding: 5px;
             }
-            .header {
-                padding: 12px 2vw;
-                border-radius: 10px;
-            }
-            .controls, .workout-content, .auth-container {
-                padding: 12px 2vw;
-                border-radius: 8px;
-            }
+            
             .sets-grid {
-                grid-template-columns: 30px 1fr 1fr 40px;
-                gap: 4px;
+                grid-template-columns: 35px 1fr 1fr 50px;
+                gap: 6px;
             }
+            
             .sets-grid input {
-                padding: 4px 4px;
+                padding: 4px 6px;
                 font-size: 0.85rem;
             }
+
             .logout-btn {
                 position: static;
                 margin-top: 10px;
-                right: unset;
-                top: unset;
-                width: 100%;
             }
         }
     </style>
@@ -564,9 +511,7 @@
         <div class="divider">or</div>
         
         <form id="authForm" class="auth-form">
-            <label for="email">Email</label>
             <input type="email" id="email" placeholder="Email" required>
-            <label for="password">Password</label>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
             <div id="authError" class="error"></div>
@@ -582,23 +527,11 @@
     </div>
 
     <div id="appContainer" class="container" style="display: none;">
-        <!-- Analytics Section -->
-        <div id="analyticsSection" style="display:none; margin-bottom:24px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:16px;">
-            <h2 style="font-size:1.1rem; margin-bottom:10px; color:#333;">Progress Analytics</h2>
-            <div style="margin-bottom:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-                <label for="analyticsWorkoutSelect" style="font-size:0.95rem; font-weight:600;">Workout:</label>
-                <select id="analyticsWorkoutSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
-                <label for="analyticsExerciseSelect" style="font-size:0.95rem; font-weight:600;">Exercise:</label>
-                <select id="analyticsExerciseSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
-            </div>
-            <canvas id="progressChart" height="180"></canvas>
-        </div>
         <div class="header">
-            <h1 style="font-size:2rem; font-weight:800; color:var(--accent); letter-spacing:-1px; margin-bottom:2px;">💪 Split Workout Tracker</h1>
-            <p style="font-size:1rem; color:var(--primary-text); margin-bottom:8px;">2 on &middot; 1 off &middot; 2 on &middot; 1-2 off</p>
+            <h1>💪 Split Workout Tracker</h1>
+            <p>2 on • 1 off • 2 on • 1-2 off</p>
             <div class="user-info" id="userInfo"></div>
             <button class="logout-btn" onclick="handleLogout()">Logout</button>
-            <button id="darkModeToggle" style="margin-top:10px; background:var(--card-bg); color:var(--primary-text); border:1.5px solid var(--accent); border-radius:8px; padding:6px 18px; font-size:0.95rem; font-weight:600; cursor:pointer; transition:background 0.2s;">🌙 Dark Mode</button>
         </div>
 
         <div class="controls">
@@ -641,153 +574,13 @@
     <div id="saveIndicator" class="save-indicator">Saved ✓</div>
 
     <script>
-        // --- Dark Mode Toggle ---
-        function setDarkMode(enabled) {
-            if (enabled) {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('darkMode', '1');
-                document.getElementById('darkModeToggle').textContent = '☀️ Light Mode';
-            } else {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('darkMode', '0');
-                document.getElementById('darkModeToggle').textContent = '🌙 Dark Mode';
-            }
-        }
-        function toggleDarkMode() {
-            setDarkMode(!document.body.classList.contains('dark-mode'));
-        }
-        window.addEventListener('DOMContentLoaded', () => {
-            const darkPref = localStorage.getItem('darkMode');
-            setDarkMode(darkPref === '1');
-            document.getElementById('darkModeToggle').onclick = function() {
-                toggleDarkMode();
-                renderProgressChart();
-            };
-        });
         let currentUser = null;
         let currentWeek = 1;
         let currentWorkout = 'upperA';
         let workoutData = {};
         let isSignUp = false;
 
-        // --- Analytics Section ---
-    // chartInstance already declared globally above
-        function showAnalytics() {
-            const analyticsSection = document.getElementById('analyticsSection');
-            analyticsSection.style.display = 'block';
-            populateAnalyticsWorkoutSelect();
-        }
-
-        function hideAnalytics() {
-            document.getElementById('analyticsSection').style.display = 'none';
-        }
-
-        function populateAnalyticsWorkoutSelect() {
-            const workoutSelect = document.getElementById('analyticsWorkoutSelect');
-            workoutSelect.innerHTML = '';
-            for (const key of Object.keys(workouts)) {
-                const opt = document.createElement('option');
-                opt.value = key;
-                opt.textContent = workouts[key].name;
-                workoutSelect.appendChild(opt);
-            }
-            workoutSelect.value = currentWorkout;
-            workoutSelect.onchange = function() {
-                populateAnalyticsExerciseSelect();
-                renderProgressChart();
-            };
-            populateAnalyticsExerciseSelect();
-            renderProgressChart();
-        }
-
-        function populateAnalyticsExerciseSelect() {
-            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
-            const select = document.getElementById('analyticsExerciseSelect');
-            select.innerHTML = '';
-            const workout = workouts[workoutKey];
-            workout.exercises.forEach((ex, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = ex.name;
-                select.appendChild(opt);
-            });
-            select.onchange = renderProgressChart;
-        }
-
-        function renderProgressChart() {
-            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
-            const select = document.getElementById('analyticsExerciseSelect');
-            const exerciseIdx = parseInt(select.value || 0);
-            const labels = [];
-            const weights = [];
-            const reps = [];
-            for (let week = 1; week <= 12; week++) {
-                labels.push('Week ' + week);
-                const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
-                if (exData) {
-                    let w = parseFloat(exData.sets[0]?.weight) || 0;
-                    let r = parseFloat(exData.sets[0]?.reps) || 0;
-                    w = Math.max(0, w);
-                    r = Math.max(0, r);
-                    weights.push(w);
-                    reps.push(r);
-                } else {
-                    weights.push(0); reps.push(0);
-                }
-            }
-            // Clamp chart display ranges
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
-                        { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'top' } },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: 'Weight' },
-                            min: 0,
-                            max: 600,
-                            ticks: {
-                                stepSize: 50,
-                                callback: function(value) {
-                                    if (value % 50 === 0 && value >= 0 && value <= 600) return value;
-                                    return '';
-                                }
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            title: { display: true, text: 'Reps' },
-                            min: 0,
-                            max: 20,
-                            ticks: {
-                                stepSize: 1,
-                                autoSkip: false,
-                                callback: function(value) {
-                                    if (value >= 0 && value <= 20) return value;
-                                    return '';
-                                }
-                            }
-                        },
-                        // y2 removed since volume is gone
-                    }
-                }
-            });
-        }
+        // Exercise execution tips and tempo explanations
         const exerciseTips = {
             "Incline Press": "Don't arch back, maintain stacked position. Brief pause at bottom. Stop 1-2\" above chest.",
             "Chest Fly": "Focus on expansion during eccentric. Don't force scapular retraction, focus on depression.",
@@ -1129,7 +922,6 @@
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('appContainer').style.display = 'block';
             document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.email}`;
-            showAnalytics();
         }
 
         function showLoading() {
@@ -1201,15 +993,6 @@
             }
         }
 
-        // Debounced save to reduce write frequency during edits
-        let saveTimeout = null;
-        function scheduleSaveUserData(delay = 800) {
-            if (saveTimeout) clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveUserData();
-            }, delay);
-        }
-
         // App functions
         function selectWeek(week) {
             currentWeek = parseInt(week);
@@ -1229,8 +1012,6 @@
                         <p>Recovery time - prepare for your next workout!</p>
                     </div>
                 `;
-                // Sanitize rest day heading in case of encoding artifacts
-                try { const restH2 = content.querySelector('.rest-day h2'); if (restH2) restH2.textContent = 'Rest Day'; } catch (_) {}
                 return;
             }
 
@@ -1280,8 +1061,6 @@
             });
 
             content.innerHTML = html;
-            // Normalize separators in exercise info after render
-            try { fixEncodingArtifacts(); } catch(_) {}
         }
 
         function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
@@ -1365,22 +1144,16 @@
             exerciseData.sets[setIndex][field] = value;
             
             // Update the input styling to show it's now current data
-            try {
-                if (typeof event !== 'undefined' && event && event.target) {
-                    const input = event.target;
-                    input.classList.remove('previous-data');
-                    input.classList.add('current-data');
-                }
-            } catch (_) {
-                // No-op if event is unavailable (safety for inline handlers)
-            }
+            const input = event.target;
+            input.classList.remove('previous-data');
+            input.classList.add('current-data');
             
-            scheduleSaveUserData();
+            saveUserData();
         }
 
         function updateComments(exerciseIndex, value) {
             workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
-            scheduleSaveUserData();
+            saveUserData();
         }
 
         function addSet(exerciseIndex) {
@@ -1409,27 +1182,8 @@
             }, 2000);
         }
 
-        // Normalize any garbled text from encoding issues
-        function fixEncodingArtifacts() {
-            const headerTitle = document.querySelector('.header h1');
-            if (headerTitle) headerTitle.textContent = 'Split Workout Tracker';
-            const headerSub = document.querySelector('.header p');
-            if (headerSub) headerSub.innerHTML = '2 on &middot; 1 off &middot; 2 on &middot; 1-2 off';
-            const saveEl = document.getElementById('saveIndicator');
-            if (saveEl && saveEl.textContent.trim() !== 'Saved') saveEl.textContent = 'Saved';
-            // Replace control/replacement characters in exercise info with a middot separator
-            document.querySelectorAll('.exercise-info').forEach(el => {
-                const cleaned = el.innerHTML
-                    .replace(/[\u0000-\u001F\uFFFD]+/g, ' &middot; ')
-                    .replace(/[•]+/g, ' &middot; ')
-                    .replace(/\s*&middot;\s*/g, ' &middot; ');
-                el.innerHTML = cleaned;
-            });
-        }
-
         // Initialize the app when page loads
         window.addEventListener('load', () => {
-            fixEncodingArtifacts();
             initAuth();
         });
     </script>
