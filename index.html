@@ -94,6 +94,14 @@
             gap: 15px;
         }
 
+        .auth-form label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #000000;
+            text-align: left;
+        }
+
         .auth-form input {
             padding: 12px;
             border: 2px solid #000000;
@@ -104,6 +112,15 @@
         .auth-form input:focus {
             outline: none;
             border-color: #000000;
+        }
+
+        /* Strong, visible focus outlines for accessibility */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid #005fcc;
+            outline-offset: 2px;
         }
 
         .auth-btn {
@@ -511,7 +528,9 @@
         <div class="divider">or</div>
         
         <form id="authForm" class="auth-form">
+            <label for="email">Email</label>
             <input type="email" id="email" placeholder="Email" required>
+            <label for="password">Password</label>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit" class="auth-btn" id="authBtn">Sign In</button>
             <div id="authError" class="error"></div>
@@ -993,6 +1012,15 @@
             }
         }
 
+        // Debounced save to reduce write frequency during edits
+        let saveTimeout = null;
+        function scheduleSaveUserData(delay = 800) {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveUserData();
+            }, delay);
+        }
+
         // App functions
         function selectWeek(week) {
             currentWeek = parseInt(week);
@@ -1158,12 +1186,12 @@
                 // No-op if event is unavailable (safety for inline handlers)
             }
             
-            saveUserData();
+            scheduleSaveUserData();
         }
 
         function updateComments(exerciseIndex, value) {
             workoutData[currentWeek][currentWorkout][exerciseIndex].comments = value;
-            saveUserData();
+            scheduleSaveUserData();
         }
 
         function addSet(exerciseIndex) {
@@ -1204,6 +1232,7 @@
             document.querySelectorAll('.exercise-info').forEach(el => {
                 const cleaned = el.innerHTML
                     .replace(/[\u0000-\u001F\uFFFD]+/g, ' &middot; ')
+                    .replace(/[•]+/g, ' &middot; ')
                     .replace(/\s*&middot;\s*/g, ' &middot; ');
                 el.innerHTML = cleaned;
             });
