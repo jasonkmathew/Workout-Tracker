@@ -738,9 +738,11 @@
                 const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
                 if (exData) {
                     // Use first set for simplicity
-                    const set = exData.sets[0] || { weight: '', reps: '' };
-                    const w = parseFloat(set.weight) || 0;
-                    const r = parseFloat(set.reps) || 0;
+                    let w = parseFloat(exData.sets[0]?.weight) || 0;
+                    let r = parseFloat(exData.sets[0]?.reps) || 0;
+                    // Clamp and remove negatives
+                    w = Math.max(0, w);
+                    r = Math.max(0, r);
                     weights.push(w);
                     reps.push(r);
                     volumes.push(w * r);
@@ -748,6 +750,7 @@
                     weights.push(0); reps.push(0); volumes.push(0);
                 }
             }
+            // Clamp chart display ranges
             const ctx = document.getElementById('progressChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
@@ -764,8 +767,29 @@
                     responsive: true,
                     plugins: { legend: { position: 'top' } },
                     scales: {
-                        y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Weight' } },
-                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Reps' } },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Weight' },
+                            min: 50,
+                            max: 600,
+                            ticks: {
+                                callback: function(value) { return value >= 50 && value <= 600 ? value : ''; }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Reps' },
+                            min: 1,
+                            max: 600,
+                            ticks: {
+                                callback: function(value) { return value >= 1 && value <= 600 ? value : ''; }
+                            }
+                        },
                         y2: { type: 'linear', display: false, position: 'right' }
                     }
                 }
