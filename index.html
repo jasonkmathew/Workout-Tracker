@@ -732,22 +732,18 @@
             const labels = [];
             const weights = [];
             const reps = [];
-            const volumes = [];
             for (let week = 1; week <= 12; week++) {
                 labels.push('Week ' + week);
                 const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
                 if (exData) {
-                    // Use first set for simplicity
                     let w = parseFloat(exData.sets[0]?.weight) || 0;
                     let r = parseFloat(exData.sets[0]?.reps) || 0;
-                    // Clamp and remove negatives
                     w = Math.max(0, w);
                     r = Math.max(0, r);
                     weights.push(w);
                     reps.push(r);
-                    volumes.push(w * r);
                 } else {
-                    weights.push(0); reps.push(0); volumes.push(0);
+                    weights.push(0); reps.push(0);
                 }
             }
             // Clamp chart display ranges
@@ -759,8 +755,7 @@
                     labels,
                     datasets: [
                         { label: 'Weight', data: weights, borderColor: '#005fcc', backgroundColor: 'rgba(0,95,204,0.1)', yAxisID: 'y', tension:0.2 },
-                        { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 },
-                        { label: 'Volume', data: volumes, borderColor: '#fdcb6e', backgroundColor: 'rgba(253,203,110,0.1)', yAxisID: 'y2', tension:0.2 }
+                        { label: 'Reps', data: reps, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.1)', yAxisID: 'y1', tension:0.2 }
                     ]
                 },
                 options: {
@@ -799,7 +794,7 @@
                                 }
                             }
                         },
-                        y2: { type: 'linear', display: false, position: 'right' }
+                        // y2 removed since volume is gone
                     }
                 }
             });
