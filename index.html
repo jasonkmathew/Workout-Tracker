@@ -599,7 +599,9 @@
         <!-- Analytics Section -->
         <div id="analyticsSection" style="display:none; margin-bottom:24px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:16px;">
             <h2 style="font-size:1.1rem; margin-bottom:10px; color:#333;">Progress Analytics</h2>
-            <div style="margin-bottom:10px;">
+            <div style="margin-bottom:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                <label for="analyticsWorkoutSelect" style="font-size:0.95rem; font-weight:600;">Workout:</label>
+                <select id="analyticsWorkoutSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
                 <label for="analyticsExerciseSelect" style="font-size:0.95rem; font-weight:600;">Exercise:</label>
                 <select id="analyticsExerciseSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
             </div>
@@ -684,19 +686,36 @@
         function showAnalytics() {
             const analyticsSection = document.getElementById('analyticsSection');
             analyticsSection.style.display = 'block';
-            populateAnalyticsExerciseSelect();
-            renderProgressChart();
+            populateAnalyticsWorkoutSelect();
         }
 
         function hideAnalytics() {
             document.getElementById('analyticsSection').style.display = 'none';
         }
 
+        function populateAnalyticsWorkoutSelect() {
+            const workoutSelect = document.getElementById('analyticsWorkoutSelect');
+            workoutSelect.innerHTML = '';
+            for (const key of Object.keys(workouts)) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = workouts[key].name;
+                workoutSelect.appendChild(opt);
+            }
+            workoutSelect.value = currentWorkout;
+            workoutSelect.onchange = function() {
+                populateAnalyticsExerciseSelect();
+                renderProgressChart();
+            };
+            populateAnalyticsExerciseSelect();
+            renderProgressChart();
+        }
+
         function populateAnalyticsExerciseSelect() {
+            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
             const select = document.getElementById('analyticsExerciseSelect');
             select.innerHTML = '';
-            // Use current workout for now, can expand to all workouts later
-            const workout = workouts[currentWorkout];
+            const workout = workouts[workoutKey];
             workout.exercises.forEach((ex, idx) => {
                 const opt = document.createElement('option');
                 opt.value = idx;
@@ -707,6 +726,7 @@
         }
 
         function renderProgressChart() {
+            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
             const select = document.getElementById('analyticsExerciseSelect');
             const exerciseIdx = parseInt(select.value || 0);
             const labels = [];
@@ -715,7 +735,7 @@
             const volumes = [];
             for (let week = 1; week <= 12; week++) {
                 labels.push('Week ' + week);
-                const exData = workoutData[week]?.[currentWorkout]?.[exerciseIdx];
+                const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
                 if (exData) {
                     // Use first set for simplicity
                     const set = exData.sets[0] || { weight: '', reps: '' };
