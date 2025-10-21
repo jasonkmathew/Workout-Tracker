@@ -775,7 +775,11 @@
                             min: 50,
                             max: 600,
                             ticks: {
-                                callback: function(value) { return value >= 50 && value <= 600 ? value : ''; }
+                                stepSize: 50,
+                                callback: function(value) {
+                                    if (value % 50 === 0 && value >= 50 && value <= 600) return value;
+                                    return '';
+                                }
                             }
                         },
                         y1: {
@@ -787,7 +791,12 @@
                             min: 1,
                             max: 600,
                             ticks: {
-                                callback: function(value) { return value >= 1 && value <= 600 ? value : ''; }
+                                stepSize: 1,
+                                callback: function(value) {
+                                    if (value >= 1 && value <= 20) return value;
+                                    if (value > 20 && value % 10 === 0 && value <= 600) return value;
+                                    return '';
+                                }
                             }
                         },
                         y2: { type: 'linear', display: false, position: 'right' }
