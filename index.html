@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Chart.js CDN for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Split Workout Tracker</title>
@@ -527,6 +529,17 @@
     </div>
 
     <div id="appContainer" class="container" style="display: none;">
+        <!-- Analytics Section -->
+        <div id="analyticsSection" style="margin-bottom:24px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:16px;">
+            <h2 style="font-size:1.1rem; margin-bottom:10px; color:#333;">Progress Analytics</h2>
+            <div style="margin-bottom:10px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                <label for="analyticsWorkoutSelect" style="font-size:0.95rem; font-weight:600;">Workout:</label>
+                <select id="analyticsWorkoutSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
+                <label for="analyticsExerciseSelect" style="font-size:0.95rem; font-weight:600;">Exercise:</label>
+                <select id="analyticsExerciseSelect" style="padding:6px 10px; border-radius:6px; border:1px solid #000; font-size:1rem;"></select>
+            </div>
+            <canvas id="progressChart" height="180"></canvas>
+        </div>
         <div class="header">
             <h1>💪 Split Workout Tracker</h1>
             <p>2 on • 1 off • 2 on • 1-2 off</p>
@@ -574,6 +587,151 @@
     <div id="saveIndicator" class="save-indicator">Saved ✓</div>
 
     <script>
+        // --- Progress Analytics ---
+        let chartInstance = null;
+        function populateAnalyticsWorkoutSelect() {
+            const workoutSelect = document.getElementById('analyticsWorkoutSelect');
+            workoutSelect.innerHTML = '';
+            for (const key of Object.keys(workouts)) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = workouts[key].name;
+                workoutSelect.appendChild(opt);
+            }
+            workoutSelect.value = 'upperA';
+            workoutSelect.onchange = function() {
+                populateAnalyticsExerciseSelect();
+                renderProgressChart();
+            };
+            populateAnalyticsExerciseSelect();
+            renderProgressChart();
+        }
+
+        function populateAnalyticsExerciseSelect() {
+            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
+            const select = document.getElementById('analyticsExerciseSelect');
+            select.innerHTML = '';
+            const workout = workouts[workoutKey];
+            workout.exercises.forEach((ex, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = ex.name;
+                select.appendChild(opt);
+            });
+            select.onchange = renderProgressChart;
+        }
+
+        function getChartTheme() {
+            const prefersDark = document.body.classList.contains('dark-mode') || window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                return {
+                    text: '#e6eef8',
+                    grid: 'rgba(255,255,255,0.06)',
+                    bg: '#23272a',
+                    weightLine: '#4f8cff',
+                    repsLine: '#6be6b0'
+                };
+            }
+            return {
+                text: '#111827',
+                grid: 'rgba(0,0,0,0.08)',
+                bg: '#ffffff',
+                weightLine: '#005fcc',
+                repsLine: '#00b894'
+            };
+        }
+
+        function renderProgressChart() {
+            const workoutKey = document.getElementById('analyticsWorkoutSelect').value;
+            const select = document.getElementById('analyticsExerciseSelect');
+            const exerciseIdx = parseInt(select.value || 0);
+            const labels = [];
+            const weights = [];
+            const reps = [];
+            for (let week = 1; week <= 12; week++) {
+                labels.push('Week ' + week);
+                const exData = workoutData[week]?.[workoutKey]?.[exerciseIdx];
+                if (exData) {
+                    // Use first set for simplicity
+                    const set = exData.sets[0] || { weight: '', reps: '' };
+                    const w = Math.max(0, parseFloat(set.weight) || 0);
+                    const r = Math.max(0, parseFloat(set.reps) || 0);
+                    weights.push(w);
+                    reps.push(r);
+                } else {
+                    weights.push(0);
+                    reps.push(0);
+                }
+            }
+
+            const theme = getChartTheme();
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Weight (lbs)', data: weights, borderColor: theme.weightLine, backgroundColor: 'rgba(0,0,0,0)', yAxisID: 'y', tension:0.25, pointRadius:3 },
+                        { label: 'Reps', data: reps, borderColor: theme.repsLine, backgroundColor: 'rgba(0,0,0,0)', yAxisID: 'y1', tension:0.25, pointRadius:3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: theme.text } }
+                    },
+                    scales: {
+                        x: { ticks: { color: theme.text }, grid: { color: theme.grid } },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Weight (lbs)', color: theme.text },
+                            min: 0,
+                            max: 600,
+                            ticks: {
+                                stepSize: 25,
+                                color: theme.text,
+                                callback: function(value) {
+                                    // show every 25
+                                    if (value % 25 === 0) return value;
+                                    return '';
+                                }
+                            },
+                            grid: { color: theme.grid }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Reps', color: theme.text },
+                            min: 0,
+                            max: 20,
+                            ticks: {
+                                stepSize: 1,
+                                color: theme.text,
+                                autoSkip: false
+                            },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Call this after user data is loaded
+        function showAnalytics() {
+            document.getElementById('analyticsSection').style.display = 'block';
+            populateAnalyticsWorkoutSelect();
+        }
+        // Re-render chart on dark mode toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) darkModeToggle.addEventListener('click', () => {
+                setTimeout(renderProgressChart, 80);
+            });
+        });
         let currentUser = null;
         let currentWeek = 1;
         let currentWorkout = 'upperA';
@@ -1185,6 +1343,7 @@
         // Initialize the app when page loads
         window.addEventListener('load', () => {
             initAuth();
+            showAnalytics();
         });
     </script>
 </body>
