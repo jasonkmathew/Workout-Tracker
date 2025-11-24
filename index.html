@@ -72,9 +72,21 @@
 
         <!-- Analytics Card -->
         <div class="card">
-            <h3
-                style="margin-bottom: 16px; font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
-                Progress Analytics</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3
+                    style="font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                    Progress Analytics</h3>
+                <div style="display: flex; gap: 8px;">
+                    <select id="chartWorkoutSelect"
+                        style="width: auto; padding: 6px 12px; font-size: 0.85rem; margin-bottom: 0;">
+                        <!-- Populated by JS -->
+                    </select>
+                    <select id="chartExerciseSelect"
+                        style="width: auto; padding: 6px 12px; font-size: 0.85rem; margin-bottom: 0;">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
             <canvas id="progressChart" height="200"></canvas>
         </div>
 

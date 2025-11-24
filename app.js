@@ -160,11 +160,11 @@ function initializeWorkoutData() {
 async function loadUserData() {
     if (!currentUser) return;
     document.getElementById('loadingScreen').classList.remove('hidden');
-    
+
     try {
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDoc = await getDoc(userDocRef);
-        
+
         if (userDoc.exists()) {
             const userData = userDoc.data();
             if (userData.workouts) {
@@ -180,10 +180,11 @@ async function loadUserData() {
         console.error('Error loading user data:', error);
         initializeWorkoutData();
     }
-    
+
     document.getElementById('loadingScreen').classList.add('hidden');
     document.getElementById('appContainer').classList.remove('hidden');
     renderApp();
+    initAnalytics();
 }
 
 async function saveUserData() {
@@ -194,7 +195,7 @@ async function saveUserData() {
             workouts: workoutData,
             lastUpdated: new Date()
         }, { merge: true });
-        
+
         showSaveIndicator();
     } catch (error) {
         console.error('Error saving user data:', error);
@@ -211,7 +212,7 @@ function showSaveIndicator() {
 function renderApp() {
     document.getElementById('userInfo').textContent = currentUser.email.split('@')[0];
     document.getElementById('avatar').textContent = currentUser.email[0].toUpperCase();
-    
+
     // Setup selectors
     const weekSelect = document.getElementById('weekSelect');
     weekSelect.value = currentWeek;
@@ -234,7 +235,7 @@ function renderApp() {
 
 function renderWorkout() {
     const content = document.getElementById('workoutContent');
-    
+
     if (currentWorkout === 'rest1' || currentWorkout === 'rest2') {
         content.innerHTML = `
             <div class="card" style="text-align: center; padding: 40px;">
@@ -247,12 +248,12 @@ function renderWorkout() {
 
     const workout = workouts[currentWorkout];
     let html = '';
-    
+
     workout.exercises.forEach((exercise, index) => {
         const exerciseData = workoutData[currentWeek][currentWorkout][index];
         const previousWeekData = currentWeek > 1 ? workoutData[currentWeek - 1][currentWorkout][index] : null;
         const tips = exerciseTips[exercise.name] || "Focus on proper form and controlled movement.";
-        
+
         html += `
             <div class="exercise-card">
                 <div class="exercise-header">
@@ -303,24 +304,24 @@ function generateSetsHTML(exerciseIndex, exerciseData, previousWeekData) {
     const currentSets = exerciseData.sets.length;
     const previousSets = previousWeekData ? previousWeekData.sets.length : 0;
     const maxSets = Math.max(currentSets, previousSets, 2);
-    
+
     // Ensure enough sets exist
     while (exerciseData.sets.length < maxSets) {
         exerciseData.sets.push({ weight: '', reps: '' });
     }
-    
+
     for (let i = 0; i < maxSets; i++) {
         const currentSet = exerciseData.sets[i] || { weight: '', reps: '' };
         const previousSet = previousWeekData && previousWeekData.sets[i] ? previousWeekData.sets[i] : null;
-        
+
         const weightVal = currentSet.weight !== '' ? currentSet.weight : (previousSet && currentWeek > 1 ? previousSet.weight : '');
         const repsVal = currentSet.reps !== '' ? currentSet.reps : (previousSet && currentWeek > 1 ? previousSet.reps : '');
-        
+
         const isCurrent = currentSet.weight !== '' || currentSet.reps !== '';
         const isPrev = !isCurrent && previousSet && currentWeek > 1;
-        
+
         const inputClass = isCurrent ? 'current' : (isPrev ? 'previous' : '');
-        
+
         html += `
             <div class="set-row">
                 <span class="set-number">S${i + 1}</span>
@@ -375,50 +376,143 @@ window.removeSet = (exIdx, setIdx) => {
 };
 
 // --- Analytics ---
+function initAnalytics() {
+    const workoutSelect = document.getElementById('chartWorkoutSelect');
+    const exerciseSelect = document.getElementById('chartExerciseSelect');
+
+    // Populate Workout Select
+    workoutSelect.innerHTML = '';
+    Object.keys(workouts).forEach(key => {
+        if (key.startsWith('rest')) return;
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = workouts[key].name;
+        workoutSelect.appendChild(opt);
+    });
+
+    // Listeners
+    workoutSelect.onchange = () => {
+        updateChartExerciseOptions();
+        updateAnalytics();
+    };
+
+    exerciseSelect.onchange = () => {
+        updateAnalytics();
+    };
+
+    // Initial population
+    workoutSelect.value = currentWorkout.startsWith('rest') ? 'upperA' : currentWorkout;
+    updateChartExerciseOptions();
+}
+
+function updateChartExerciseOptions() {
+    const workoutKey = document.getElementById('chartWorkoutSelect').value;
+    const exerciseSelect = document.getElementById('chartExerciseSelect');
+
+    exerciseSelect.innerHTML = '';
+    const workout = workouts[workoutKey];
+
+    workout.exercises.forEach((ex, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = ex.name;
+        exerciseSelect.appendChild(opt);
+    });
+}
+
 function updateAnalytics() {
     const ctx = document.getElementById('progressChart').getContext('2d');
-    
-    // Simple data aggregation for the current workout type
-    // In a real app, we'd probably want a more specific selector
+    const workoutKey = document.getElementById('chartWorkoutSelect').value;
+    const exerciseIdx = document.getElementById('chartExerciseSelect').value;
+
     const labels = [];
-    const dataPoints = [];
-    
-    for(let i=1; i<=12; i++) {
+    const weightData = [];
+    const repsData = [];
+
+    for (let i = 1; i <= 12; i++) {
         labels.push(`W${i}`);
-        // Just taking the first exercise's first set weight as a proxy for progress for now
-        // to keep it simple but functional
-        if(workoutData[i] && workoutData[i][currentWorkout] && workoutData[i][currentWorkout][0]) {
-            const set = workoutData[i][currentWorkout][0].sets[0];
-            dataPoints.push(set ? (parseFloat(set.weight) || 0) : 0);
-        } else {
-            dataPoints.push(0);
+        let weight = 0;
+        let reps = 0;
+
+        if (workoutData[i] && workoutData[i][workoutKey] && workoutData[i][workoutKey][exerciseIdx]) {
+            const sets = workoutData[i][workoutKey][exerciseIdx].sets;
+            // Find best set (highest weight)
+            const bestSet = sets.reduce((prev, current) => {
+                const prevW = parseFloat(prev.weight) || 0;
+                const currW = parseFloat(current.weight) || 0;
+                return currW > prevW ? current : prev;
+            }, { weight: 0, reps: 0 });
+
+            weight = parseFloat(bestSet.weight) || 0;
+            reps = parseFloat(bestSet.reps) || 0;
         }
+
+        weightData.push(weight);
+        repsData.push(reps);
     }
 
     if (chartInstance) chartInstance.destroy();
-    
+
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Progress (First Exercise Weight)',
-                data: dataPoints,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
+            datasets: [
+                {
+                    label: 'Weight (lbs)',
+                    data: weightData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Reps',
+                    data: repsData,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.0)',
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    yAxisID: 'y1',
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                }
+            ]
         },
         options: {
             responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             plugins: {
-                legend: { labels: { color: '#94a3b8' } }
+                legend: { labels: { color: '#94a3b8' } },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#f8fafc',
+                    bodyColor: '#cbd5e1',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1
+                }
             },
             scales: {
                 y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                    ticks: { color: '#94a3b8' }
+                    ticks: { color: '#94a3b8' },
+                    title: { display: true, text: 'Weight', color: '#3b82f6' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#94a3b8' },
+                    title: { display: true, text: 'Reps', color: '#10b981' }
                 },
                 x: {
                     grid: { display: false },
