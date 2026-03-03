@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Jason's Workout Tracker</title>
-    <meta name="description"
-        content="Track your workouts, monitor progress, and crush your fitness goals with Jason's Workout Tracker.">
+    <title>Jason</title>
+    <meta name="description" content="Track your workouts, monitor progress, and crush your fitness goals with Jason.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -1261,7 +1260,7 @@
     <div class="login-overlay" id="loginOverlay">
         <div class="login-card">
             <div class="login-logo">💪</div>
-            <h1>Jason's Tracker</h1>
+            <h1>Jason</h1>
             <div class="login-sub">Sign in to sync your workouts across devices</div>
             <button class="google-btn" id="googleSignInBtn" onclick="signInWithGoogle()">
                 <svg viewBox="0 0 24 24">
@@ -1283,7 +1282,7 @@
 
     <div class="app" id="mainApp" style="display:none;">
         <div class="page-header" style="position:relative;">
-            <h1>💪 Jason's Workout Tracker</h1>
+            <h1>💪 Jason</h1>
             <div class="subtitle">SPLIT WORKOUT TRACKER</div>
             <button id="daisyOpenBtn" onclick="window.location.href='daisy.html'"
                 style="position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#f8a4c8,#c8a4f8);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px;box-shadow:0 2px 10px rgba(248,164,200,.35);transition:all .25s ease;"
@@ -1437,7 +1436,7 @@
                 <button class="btn-setting btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
             </div>
             <div class="card" style="text-align:center;padding:30px;">
-                <div style="font-size:13px;color:var(--text-muted);">Jason's Workout Tracker v3.1 • Cloud synced via
+                <div style="font-size:13px;color:var(--text-muted);">Jason v3.1 • Cloud synced via
                     Firebase</div>
             </div>
         </div>
@@ -2240,7 +2239,7 @@
         }
 
         function signOutUser() {
-            if (confirm("Sign out of Jason's Workout Tracker?")) {
+            if (confirm("Sign out of Jason?")) {
                 auth.signOut();
             }
         }
